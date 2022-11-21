@@ -24,28 +24,28 @@ function VarCalculator() {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12}>
+      <Grid item xs={6}>
         <TextField
           id="outlined-basic"
           label="Position Amount"
           variant="outlined"
         />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={6}>
         <TextField
           id="outlined-basic"
           label="Asset Volatility (%)"
           variant="outlined"
         />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={6}>
         <TextField
           id="outlined-basic"
           label="Time in Days"
           variant="outlined"
         />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={6}>
         <TextField
           id="outlined-basic"
           label="Confidence Interval (%)"
