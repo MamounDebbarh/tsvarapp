@@ -5,10 +5,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = "secret"
 CORS(app, resources = {r"/*": {"origins": "*"}})
 
-@app.route("/stocks", methods=["GET"])
-def stocks():
-    return {
-        "stocks": [
+# array of stocks
+stocksArray = [
             {
                 "name": "AAPL",
                 "shares": 100,
@@ -22,13 +20,67 @@ def stocks():
                 "shares": 145,
             },
         ]
+# array of options
+optionsArray = [
+            {
+                "name": "option1",
+                "shares": 123,
+            },
+            {
+                "name": "option2",
+                "shares": 45,
+            },
+            {
+                "name": "option3",
+                "shares": 6777,
+            },
+        ]
+
+@app.route("/stocks", methods=["GET"])
+def stocks():
+    return {
+        "stocks": stocksArray
     }
 
+@app.route("/options", methods=["GET"])
+def options():
+    return {
+        "options": optionsArray
+    }
 
-# create stock JSON object with name and price
-@app.route("/stock/<string:name>")
-def stock(name):
-    return {"name": name, "price": 100}
+#add a new stock
+@app.route("/stocks", methods=["POST"])
+def add_stock():
+    name = request.json["name"]
+    shares = request.json["shares"]
+    stocksArray.append({"name": name, "shares": shares})
+    return {"message": "Stock added successfully"}
+
+#add a new option
+@app.route("/options", methods=["POST"])
+def add_option():
+    name = request.json["name"]
+    shares = request.json["shares"]
+    optionsArray.append({"name": name, "shares": shares})
+    return {"message": "Option added successfully"}
+
+# delete a stock from the array
+@app.route("/stocks/<string:name>", methods=["DELETE"])
+def delete_stock(name):
+    for stock in stocksArray:
+        if stock["name"] == name:
+            stocksArray.remove(stock)
+            return {"message": "Stock deleted successfully"}
+    return {"message": "Stock not found"}
+
+# delete an option from the array
+@app.route("/options/<string:name>", methods=[ "GET", "POST", "DELETE"])
+def delete_option(name):
+    for option in optionsArray:
+        if option["name"] == name:
+            optionsArray.remove(option)
+            return {"message": "Option deleted successfully"}
+    return {"message": "Option not found"}
 
 
 if __name__ == "__main__":
