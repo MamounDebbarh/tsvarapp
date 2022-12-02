@@ -1,5 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_cors import CORS
+import yfinance as yf
+
+from services.portfolioManager import portfolioManager
+from services.varCalculator import varCalculator
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "secret"
@@ -9,32 +13,19 @@ CORS(app, resources = {r"/*": {"origins": "*"}})
 stocksArray = [
             {
                 "name": "AAPL",
-                "shares": 100,
+                "shares": 1,
             },
             {
                 "name": "GOOG",
-                "shares": 68,
+                "shares": 2,
             },
             {
                 "name": "MSFT",
-                "shares": 145,
+                "shares": 3,
             },
         ]
 # array of options
-optionsArray = [
-            {
-                "name": "option1",
-                "shares": 123,
-            },
-            {
-                "name": "option2",
-                "shares": 45,
-            },
-            {
-                "name": "option3",
-                "shares": 6777,
-            },
-        ]
+optionsArray = []
 
 @app.route("/stocks", methods=["GET"])
 def stocks():
@@ -51,14 +42,30 @@ def options():
 #add a new stock
 @app.route("/stocks", methods=["POST"])
 def add_stock():
+
+    # Check if the stock symbol is recognisable by YFinance
+    # If not, return an error message
+    ticker = yf.Ticker(request.json["name"])
+    if not ticker.info:
+        return {"message": "Stock symbol not found"}
+
     name = request.json["name"]
     shares = request.json["shares"]
+    
     stocksArray.append({"name": name, "shares": shares})
     return {"message": "Stock added successfully"}
 
 #add a new option
 @app.route("/options", methods=["POST"])
 def add_option():
+
+    # Check if the option symbol is recognisable by YFinance
+    # If not, return an error message
+    
+    ticker = yf.Ticker(request.json["name"])
+    if not ticker.info:
+        return {"message": "Stock symbol not found"}
+    
     name = request.json["name"]
     shares = request.json["shares"]
     optionsArray.append({"name": name, "shares": shares})
@@ -82,6 +89,23 @@ def delete_option(name):
             return {"message": "Option deleted successfully"}
     return {"message": "Option not found"}
 
+# Value at risk calculator using historical simulation
+@app.route("/var", methods=["POST"])
+def var():
+    confidenceLevel = request.json["confidenceLevel"]  
+    # Calculate the value at risk for the portfolio
+    # using historical simulation
+    portfolio = portfolioManager(stocksArray, optionsArray)
+    var = portfolio.calculatePortfolioValueAtRiskWithConfidenceLevel(confidenceLevel)
+    return { "var": var }
+
+# portfolio daily returns
+@app.route("/portfolioReturns", methods=["GET"])
+def portfolioReturns():
+    portfolio = portfolioManager(stocksArray, optionsArray)
+    portfolioReturns = portfolio.calculatePortfolioReturns()
+    return { "portfolioReturns": portfolioReturns.to_json() }
 
 if __name__ == "__main__":
     app.run(debug=True)  # run our server
+

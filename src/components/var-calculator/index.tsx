@@ -2,24 +2,55 @@ import { Button, Grid, Slider, TextField } from "@mui/material";
 import { useState } from "react";
 
 function VarCalculator() {
-  const [value, setValue] = useState<number | string | Array<number | string>>(
-    90
-  );
+  const [confidenceLevel, setConfidenceLevel] = useState<
+    number | string | Array<number | string>
+  >(90);
+  const [varValue, setVarValue] = useState(0);
+  const [portfolioValue, setPortfolioValue] = useState(0);
+  const [portfolioRisk, setPortfolioRisk] = useState(0);
+  const [portfolioReturns, setPortfolioReturns] = useState(0);
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
-    setValue(newValue);
+    setConfidenceLevel(newValue);
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(event.target.value === "" ? "" : Number(event.target.value));
+    setConfidenceLevel(
+      event.target.value === "" ? "" : Number(event.target.value)
+    );
   };
 
   const handleBlur = () => {
-    if (value < 0) {
-      setValue(0);
-    } else if (value > 100) {
-      setValue(100);
+    if (confidenceLevel < 0) {
+      setConfidenceLevel(0);
+    } else if (confidenceLevel > 100) {
+      setConfidenceLevel(100);
     }
+  };
+
+  const handleVarCalculation = () => {
+    // post request to backend /var endpoint with confidenceLevel
+    // then fetch var from backend and setVar
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ confidenceLevel: confidenceLevel }),
+    };
+    fetch(`/var`, requestOptions).then((response) => {
+      response.json();
+      console.log(response.json());
+    });
+    console.log("Var Calculated");
+  };
+
+  const handlePortfolioReturns = () => {
+    // get request to backend /portfolioReturns endpoint
+    // then fetch portfolioReturns from backend and setPortfolioReturns
+    fetch(`/portfolioReturns`).then((response) => {
+      response.json();
+      console.log(response.json());
+    });
+    console.log("Portfolio Returns Calculated");
   };
 
   return (
@@ -54,7 +85,7 @@ function VarCalculator() {
       </Grid>
       <Grid item xs={6}>
         <Slider
-          value={typeof value === "number" ? value : 90}
+          value={typeof confidenceLevel === "number" ? confidenceLevel : 90}
           onChange={handleSliderChange}
           aria-labelledby="input-slider"
           valueLabelDisplay="auto"
@@ -65,7 +96,7 @@ function VarCalculator() {
       </Grid>
       <Grid item xs={3}>
         <TextField
-          value={value}
+          value={confidenceLevel}
           size="small"
           onChange={handleInputChange}
           onBlur={handleBlur}
@@ -79,7 +110,14 @@ function VarCalculator() {
         />
       </Grid>
       <Grid item xs={3}>
-        <Button variant="contained">Calculate</Button>
+        <Button variant="contained" onClick={handleVarCalculation}>
+          Calculate
+        </Button>
+      </Grid>
+      <Grid item xs={3}>
+        <Button variant="contained" onClick={handlePortfolioReturns}>
+          handlePortfolioReturns
+        </Button>
       </Grid>
     </Grid>
   );
