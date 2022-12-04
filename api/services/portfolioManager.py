@@ -4,11 +4,12 @@ import numpy as np
 import datetime as dt
 import yfinance as yf
 
+PERIOD = "5y"
+
 class portfolioManager:
     def __init__(self, stocksArray, optionsArray):
         self.stocksArray = stocksArray
         self.optionsArray = optionsArray
-        self.portfolioValue = self.calculatePortfolioValue()
 
     def getStocksArray(self):
         return self.stocksArray
@@ -19,39 +20,56 @@ class portfolioManager:
     def getPortfolioValue(self):
         return self.portfolioValue
 
+    # get download portfolio data
+    def downloadPortfolioData(self):
+        start = dt.datetime(2015, 1, 1)
+        end = dt.datetime.now()
+        # get names in stocksArray
+        stockNames = []
+        for stock in self.stocksArray:
+            stockNames.append(stock["name"])
+        # get names in optionsArray
+        optionNames = []
+        for option in self.optionsArray:
+            optionNames.append(option["name"])
+
+        # Get the stock prices
+        if len(stockNames) > 0:
+            stockPrices = yf.download(tickers=stockNames, start=start, end=end)["Adj Close"]
+        # Get the option prices
+        if len(optionNames) > 0:
+            optionPrices = yf.download(tickers=optionNames, start=start, end=end)["Adj Close"]
+        # Merge the stock and option prices
+        if len(stockNames) > 0 and len(optionNames) > 0:
+            portfolioData = pd.merge(stockPrices, optionPrices, on="Date")
+        elif len(stockNames) > 0:
+            portfolioData = stockPrices
+        elif len(optionNames) > 0:
+            portfolioData = optionPrices
+        
+        print(portfolioData)
+        return portfolioData
+
+    # calculate portfolio value from portfolio data
     def calculatePortfolioValue(self):
+        # Download portfolio data
+        portfolioData = self.downloadPortfolioData()
         # Calculate the portfolio value
         portfolioValue = 0
         for stock in self.stocksArray:
-            ticker = yf.Ticker(stock["name"])
-            portfolioValue += ticker.history(period="max")["Close"][-1] * stock["shares"]
+            portfolioValue += stock["shares"] * portfolioData[stock["ticker"]]["Close"][-1]
         for option in self.optionsArray:
-            ticker = yf.Ticker(option["name"])
-            portfolioValue += ticker.history(period="max")["Close"][-1] * option["shares"]
+            portfolioValue += option["shares"] * portfolioData[option["ticker"]]["Close"][-1]
         return portfolioValue
 
     # calculate portfolio daily returns
     def calculatePortfolioReturns(self):
-        # Get the stock prices
-        stockPrices = []
-        for stock in self.stocksArray:
-            ticker = yf.Ticker(stock["name"])
-            stockPrices.append(ticker.history(period="max")["Close"])
-        # Get the option prices
-        optionPrices = []
-        for option in self.optionsArray:
-            ticker = yf.Ticker(option["name"])
-            optionPrices.append(ticker.history(period="max")["Close"])
+        # Download portfolio data
+        portfolioData = self.downloadPortfolioData()
         # Calculate the portfolio returns
-        portfolioReturns = []
-        for i in range(len(stockPrices)):
-            portfolioReturns.append(stockPrices[i] * self.stocksArray[i]["shares"])
-        for i in range(len(optionPrices)):
-            portfolioReturns.append(optionPrices[i] * self.optionsArray[i]["shares"])
-        portfolioReturns = pd.DataFrame(portfolioReturns).sum()
-        portfolioReturns = portfolioReturns.pct_change()
+        portfolioReturns = portfolioData.pct_change()
         return portfolioReturns
-    
+
     # varience covariance matrix from portfolio returns
     def calculateVarianceCovarianceMatrix(self):
         # Calculate the portfolio returns
