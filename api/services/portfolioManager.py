@@ -119,30 +119,5 @@ class portfolioManager:
         # Calculate the portfolio alpha
         portfolioAlpha = expectedPortfolioReturns - 0.02 * portfolioBeta
         return portfolioAlpha
-    
-    # calculate portfolio value at risk
-    def calculatePortfolioValueAtRisk(self):
-        # Calculate the portfolio returns
-        portfolioReturns = self.calculatePortfolioReturns()
-        # Calculate the portfolio value at risk
-        portfolioValueAtRisk = portfolioReturns.quantile(0.05)
-        return portfolioValueAtRisk
-    
-    # calculate portfolio value at risk with confidence level
-    def calculatePortfolioValueAtRiskWithConfidenceLevel(self, confidenceLevel):
-        # Calculate the portfolio returns
-        portfolioReturns = self.calculatePortfolioReturns()
-        # Calculate the portfolio value at risk with confidence level
-        portfolioValueAtRiskWithConfidenceLevel = portfolioReturns.quantile(confidenceLevel)
-        return portfolioValueAtRiskWithConfidenceLevel
-    
-    # calculate portfolio conditional value at risk
-    def calculatePortfolioConditionalValueAtRisk(self):
-        # Calculate the portfolio returns
-        portfolioReturns = self.calculatePortfolioReturns()
-        # Calculate the portfolio conditional value at risk
-        portfolioConditionalValueAtRisk = portfolioReturns.quantile(0.05)
-        return portfolioConditionalValueAtRisk
-
 
 # Path: api\services\stockManager.py

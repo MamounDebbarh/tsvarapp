@@ -106,6 +106,13 @@ def portfolioReturns():
     portfolioReturns = portfolio.calculatePortfolioReturns()
     return { "portfolioReturns": portfolioReturns.to_json() }
 
+# get portfolio beta
+@app.route("/portfolioBeta", methods=["GET"])
+def portfolioBeta():
+    portfolio = portfolioManager(stocksArray, optionsArray)
+    portfolioBeta = portfolio.calculatePortfolioBeta()
+    return { "portfolioBeta": portfolioBeta }
+
 if __name__ == "__main__":
     app.run(debug=True)  # run our server
 
