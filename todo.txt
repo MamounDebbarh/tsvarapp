@@ -1,0 +1,38 @@
+Monday
+- implement material bellow (VaR, CVaR, Monte Carlo, Black-Scholes)
+- Check if all values are making sense
+- Implement buttons for the different endpoints
+- Write report
+- Send to supervisor
+
+Tuesday
+- BackTesting
+
+Wednesday
+- Font end styling
+
+Thursday
+- Test and report
+- Send to supervisor
+
+Friday
+- Submit
+
+
+Links and work material:
+Requirements:
+VaR and CVaR: https://quantpy.com.au/risk-management/value-at-risk-var-and-conditional-var-cvar/
+                https://www.youtube.com/watch?v=90DeUSZ9fEk&t=547s
+                https://www.youtube.com/watch?v=bTZP86fHIuI&t=1s
+                https://www.youtube.com/watch?v=f9MAFvP5-pA
+
+Monte Carlo for options: https://www.youtube.com/watch?v=pR32aii3shk
+Monte Carlo for stocks: https://www.youtube.com/watch?v=6-dhdMDiYWQ
+
+Black-Scholes option pricing: https://quantpy.com.au/black-scholes-model/implementing-black-scholes-option-pricing/
+                https://www.youtube.com/watch?v=FzeXWMlTDHY
+
+Black-Scholes greek: https://quantpy.com.au/black-scholes-model/calculating-black-scholes-greeks-with-python/
+
+Extensions:
+volatility cones: https://quantpy.com.au/black-scholes-model/historical-volatility-cones/

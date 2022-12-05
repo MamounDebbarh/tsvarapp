@@ -3,13 +3,18 @@ import pandas_datareader.data as web
 import numpy as np
 import datetime as dt
 import yfinance as yf
+from scipy.stats import norm
+
 
 PERIOD = "5y"
 
-class portfolioManager:
+class PortfolioManager:
     def __init__(self, stocksArray, optionsArray):
         self.stocksArray = stocksArray
         self.optionsArray = optionsArray
+        self.portfolioValue = self.calculatePortfolioValue()
+        self.portfolioWeights = self.calculatePortfolioWeights()
+        self.portfolioReturns = self.calculatePortfolioReturns()
 
     def getStocksArray(self):
         return self.stocksArray
@@ -19,6 +24,12 @@ class portfolioManager:
     
     def getPortfolioValue(self):
         return self.portfolioValue
+
+    def getPortfolioWeights(self):
+        return self.portfolioWeights
+
+    def getPortfolioReturns(self):
+        return self.portfolioReturns
 
     # get download portfolio data
     def downloadPortfolioData(self):
@@ -46,8 +57,6 @@ class portfolioManager:
             portfolioData = stockPrices
         elif len(optionNames) > 0:
             portfolioData = optionPrices
-        
-        print(portfolioData)
         return portfolioData
 
     # calculate portfolio value from portfolio data
@@ -57,9 +66,9 @@ class portfolioManager:
         # Calculate the portfolio value
         portfolioValue = 0
         for stock in self.stocksArray:
-            portfolioValue += stock["shares"] * portfolioData[stock["ticker"]]["Close"][-1]
+            portfolioValue += stock["shares"] * portfolioData[stock["name"]]
         for option in self.optionsArray:
-            portfolioValue += option["shares"] * portfolioData[option["ticker"]]["Close"][-1]
+            portfolioValue += option["shares"] * portfolioData[option["name"]]
         return portfolioValue
 
     # calculate portfolio daily returns
@@ -70,6 +79,30 @@ class portfolioManager:
         portfolioReturns = portfolioData.pct_change()
         return portfolioReturns
 
+    # get portfolio correlation matrix
+    def getPortfolioCorrelationMatrix(self):
+        # Calculate the portfolio returns
+        portfolioReturns = self.getPortfolioReturns()
+        # Calculate the portfolio correlation matrix
+        portfolioCorrelationMatrix = portfolioReturns.corr()
+        return portfolioCorrelationMatrix
+
+    # Cholesky decomposition of the variance covariance matrix
+    def getCholeskyDecomposition(self):
+        # Calculate the variance covariance matrix
+        varianceCovarianceMatrix = self.calculateVarianceCovarianceMatrix()
+        # Calculate the Cholesky decomposition
+        choleskyDecomposition = np.linalg.cholesky(varianceCovarianceMatrix)
+        return choleskyDecomposition
+    
+    # eigen decomposition of the variance covariance matrix
+    def getEigenDecomposition(self):
+        # Calculate the variance covariance matrix
+        varianceCovarianceMatrix = self.calculateVarianceCovarianceMatrix()
+        # Calculate the eigen decomposition
+        eigenValues, eigenVectors = np.linalg.eig(varianceCovarianceMatrix)
+        return eigenValues, eigenVectors
+    
     # varience covariance matrix from portfolio returns
     def calculateVarianceCovarianceMatrix(self):
         # Calculate the portfolio returns
@@ -84,19 +117,37 @@ class portfolioManager:
         portfolioReturns = self.calculatePortfolioReturns()
         # Calculate the expected portfolio returns
         expectedPortfolioReturns = portfolioReturns.mean()
+        print(expectedPortfolioReturns)
         return expectedPortfolioReturns
 
     # calculate portfolio weights
     def calculatePortfolioWeights(self):
-        # Calculate the portfolio value
-        portfolioValue = self.calculatePortfolioValue()
-        # Calculate the portfolio weights
-        portfolioWeights = []
+        # download portfolio data
+        portfolioData = self.downloadPortfolioData()
+        uptodatedStockPrices = []
+        uptodatedOptionPrices = []
+        updatedPortfolioValue = 0
+        # get uptodate stock prices
         for stock in self.stocksArray:
-            portfolioWeights.append(stock["shares"] / portfolioValue)
+            uptodatedStockPrices.append(portfolioData[stock["name"]][-1])
+        # get uptodate option prices
         for option in self.optionsArray:
-            portfolioWeights.append(option["shares"] / portfolioValue)
-        return portfolioWeights
+            uptodatedOptionPrices.append(portfolioData[option["name"]][-1])
+        # get updated portfolio value
+        for stock in uptodatedStockPrices:
+            updatedPortfolioValue += stock
+        for option in uptodatedOptionPrices:
+            updatedPortfolioValue += option
+        # calculate portfolio weights
+        portfolioWeights = []
+        for stock in uptodatedStockPrices:
+            portfolioWeights.append(stock / updatedPortfolioValue)
+        for option in uptodatedOptionPrices:
+            portfolioWeights.append(option / updatedPortfolioValue)
+
+        print("\nStocks: \n" + str(uptodatedStockPrices) + "\nOptions: \n" + str(uptodatedOptionPrices) + "\nPortfolio Weights: \n" + str(portfolioWeights))
+        return np.array(portfolioWeights)
+
     
     # calculate portfolio standard deviation
     def calculatePortfolioStandardDeviation(self):
@@ -138,4 +189,16 @@ class portfolioManager:
         portfolioAlpha = expectedPortfolioReturns - 0.02 * portfolioBeta
         return portfolioAlpha
 
+    # Calculate confidence interval
+    def calculateConfidenceInterval(self, confidenceLevel):
+        # Calculate the portfolio returns
+        portfolioReturns = self.getPortfolioReturns()
+        # Calculate the portfolio mean with porfolio weights
+        portfolioMean = np.dot(portfolioReturns.mean(), self.getPortfolioWeights())
+        # Calculate the porfolio standard deviation with portfolio weights
+        portfolioStandardDeviation = np.sqrt(np.dot(self.getPortfolioWeights().T, np.dot(portfolioReturns.cov(), self.getPortfolioWeights())))
+        # Calculate the confidence interval
+        confidenceInterval = norm.interval(confidenceLevel, portfolioMean, portfolioStandardDeviation)
+        return confidenceInterval
+    
 # Path: api\services\stockManager.py

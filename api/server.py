@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask_cors import CORS
 import yfinance as yf
 
-from services.portfolioManager import portfolioManager
-from services.varCalculator import varCalculator
+from services.portfolioManager import PortfolioManager
+from services.models import Models
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "secret"
@@ -95,24 +95,42 @@ def var():
     confidenceLevel = request.json["confidenceLevel"]  
     # Calculate the value at risk for the portfolio
     # using historical simulation
-    portfolio = portfolioManager(stocksArray, optionsArray)
-    var = portfolio.calculatePortfolioValueAtRiskWithConfidenceLevel(confidenceLevel)
-    return { "var": var }
+    portfolio = PortfolioManager(stocksArray, optionsArray)
+    model = Models(portfolio)
+    var = model.calculatePortfolioValueAtRiskWithHistoricalSimulationMethod(confidenceLevel)
+    print("confidenceInterval: ", portfolio.calculateConfidenceInterval(confidenceLevel))
+    print("var: ", var)
+    return { "var": var}
 
 # portfolio daily returns
 @app.route("/portfolioReturns", methods=["GET"])
 def portfolioReturns():
-    portfolio = portfolioManager(stocksArray, optionsArray)
+    portfolio = PortfolioManager(stocksArray, optionsArray)
     portfolioReturns = portfolio.calculatePortfolioReturns()
+    portfolioCovarienceMatrix = portfolio.calculateVarianceCovarianceMatrix() # TODO: remove this
+    portfolioExpectedReturns = portfolio.calculateExpectedPortfolioReturns() # TODO: remove this
     # print("portfolioReturns: ", portfolioReturns)
     return { "portfolioReturns": portfolioReturns.to_json(orient="records") }
 
 # get portfolio beta
 @app.route("/portfolioBeta", methods=["GET"])
 def portfolioBeta():
-    portfolio = portfolioManager(stocksArray, optionsArray)
+    portfolio = PortfolioManager(stocksArray, optionsArray)
     portfolioBeta = portfolio.calculatePortfolioBeta()
     return { "portfolioBeta": portfolioBeta }
+
+# value at risk calculator using monte carlo simulation
+@app.route("/monteCarloVar", methods=["POST"])
+def monteCarloVar():
+    confidenceLevel = request.json["confidenceLevel"]  
+    portfolio = PortfolioManager(stocksArray, optionsArray)
+    model = Models(portfolio)
+    var = model.calculatePortfolioValueAtRiskWithMonteCarloSimulationMethod(confidenceLevel, 30, 100000)
+    print("var: ", var)
+    return { "var": var}
+
+
+
 
 
 if __name__ == "__main__":

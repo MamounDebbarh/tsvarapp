@@ -1,23 +1,48 @@
 # value at risk calculator models
+import pandas as pd
+import pandas_datareader.data as web
+import numpy as np
+import datetime as dt
+import yfinance as yf
+from scipy.stats import norm
+import scipy.stats as st
+
+
+
 
 class Models:
-    def __init__(self, portfolioManager, confidenceLevel):
+    def __init__(self, portfolioManager):
         self.portfolioManager = portfolioManager
-        self.confidenceLevel = confidenceLevel
 
     def getPortfolioManager(self):
         return self.portfolioManager
     
-    def getConfidenceLevel(self):
-        return self.confidenceLevel
-    
-    
     # calculate portfolio value at risk with historical simulation method
     def calculatePortfolioValueAtRiskWithHistoricalSimulationMethod(self, confidenceLevel):
         # Calculate the portfolio returns
-        portfolioReturns = self.calculatePortfolioReturns()
+        portfolioReturns = self.portfolioManager.getPortfolioReturns()
+        # Calculate the portfolio mean with porfolio weights
+        portfolioMean = np.dot(portfolioReturns.mean(), self.portfolioManager.getPortfolioWeights())
+        print("portfolioMean: ", portfolioMean)
+        # Calculate the porfolio standard deviation with portfolio weights
+        portfolioStandardDeviation = np.sqrt(np.dot(self.portfolioManager.getPortfolioWeights().T, np.dot(portfolioReturns.cov(), self.portfolioManager.getPortfolioWeights())))
         # Calculate the portfolio value at risk with historical simulation method
-        portfolioValueAtRiskWithHistoricalSimulationMethod = portfolioReturns.quantile(confidenceLevel)
+        portfolioValueAtRiskWithHistoricalSimulationMethod = norm.ppf(confidenceLevel, portfolioMean, portfolioStandardDeviation)
+        return portfolioValueAtRiskWithHistoricalSimulationMethod
+
+    # calculate portfolio value at risk with historical simulation method over x days
+    def calculatePortfolioValueAtRiskWithHistoricalSimulationMethodOverXDays(self, confidenceLevel, days):
+        var = self.calculatePortfolioValueAtRiskWithHistoricalSimulationMethod(confidenceLevel)
+        return var * np.sqrt(days)
+
+    
+
+    # TODO - Remove this method or understand what can be done with it
+    def calculatePortfolioValueAtRiskWithHistoricalSimulationMethod2(self, confidenceLevel):
+        # Calculate the portfolio returns
+        portfolioReturns = self.portfolioManager.getPortfolioReturns()
+        # Calculate the portfolio value at risk with historical simulation method of entire portfolio
+        portfolioValueAtRiskWithHistoricalSimulationMethod = portfolioReturns.quantile(1 - confidenceLevel)
         return portfolioValueAtRiskWithHistoricalSimulationMethod
 
 
@@ -46,18 +71,16 @@ class Models:
     # calculate portfolio value at risk with monte carlo simulation method
     def calculatePortfolioValueAtRiskWithMonteCarloSimulationMethod(self, confidenceLevel, timePeriod, numberOfSimulations):
         # Calculate the portfolio value at risk with monte carlo simulation method
-        portfolioValueAtRiskWithMonteCarloSimulationMethod = []
-        for stock in self.stocksArray:
+        portfolioVaR = []
+        for stock in self.portfolioManager.stocksArray:
             stockPrices = self.geometricBrownianMotion(stock["name"], timePeriod, numberOfSimulations)
-            portfolioValueAtRiskWithMonteCarloSimulationMethod.append(stockPrices[-1] * stock["shares"])
-        portfolioValueAtRiskWithMonteCarloSimulationMethod = pd.DataFrame(portfolioValueAtRiskWithMonteCarloSimulationMethod).sum()
-        portfolioValueAtRiskWithMonteCarloSimulationMethod = portfolioValueAtRiskWithMonteCarloSimulationMethod.quantile(confidenceLevel)
-        return portfolioValueAtRiskWithMonteCarloSimulationMethod
+            portfolioVaR.append(stockPrices[-1] * stock["shares"])
+        # Calculate the portfolio value at risk with monte carlo simulation method
+        portfolioVaR = pd.DataFrame(portfolioVaR).sum()
+        portfolioVaR = portfolioVaR.quantile(confidenceLevel)
+        return portfolioVaR
     
     # calculate conditional value at risk with monte carlo simulation method
-    
-        
-    
 
     # calculate portfolio value at risk with garch method
     def calculatePortfolioValueAtRiskWithGarchMethod(self, confidenceLevel):
