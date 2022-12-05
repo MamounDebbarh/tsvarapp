@@ -35,9 +35,6 @@ class backtester:
     def calculatePortfolioReturns(self):
         return self.portfolioManager.calculatePortfolioReturns()
     
-    def calculateVarianceCovarianceMatrix(self):
-        return self.portfolioManager.calculateVarianceCovarianceMatrix()
-    
     def calculatePortfolioStandardDeviation(self):
         return self.portfolioManager.calculatePortfolioStandardDeviation()
     

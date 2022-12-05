@@ -15,6 +15,8 @@ class PortfolioManager:
         self.portfolioValue = self.calculatePortfolioValue()
         self.portfolioWeights = self.calculatePortfolioWeights()
         self.portfolioReturns = self.calculatePortfolioReturns()
+        self.portfolioReturnsWithWeights = self.generatePorfolioReturnsWithWeights()
+        self.portfolioStandardDeviation = self.calculatePortfolioStandardDeviation()
 
     def getStocksArray(self):
         return self.stocksArray
@@ -31,6 +33,12 @@ class PortfolioManager:
     def getPortfolioReturns(self):
         return self.portfolioReturns
 
+    def getPortfolioStandardDeviation(self):
+        return self.portfolioStandardDeviation
+
+    def getPortfolioReturnsWithWeights(self):
+        return self.portfolioReturnsWithWeights
+
     # get download portfolio data
     def downloadPortfolioData(self):
         start = dt.datetime(2015, 1, 1)
@@ -46,10 +54,10 @@ class PortfolioManager:
 
         # Get the stock prices
         if len(stockNames) > 0:
-            stockPrices = yf.download(tickers=stockNames, start=start, end=end)["Adj Close"]
+            stockPrices = yf.download(tickers=stockNames, start=start, end=end)["Close"]
         # Get the option prices
         if len(optionNames) > 0:
-            optionPrices = yf.download(tickers=optionNames, start=start, end=end)["Adj Close"]
+            optionPrices = yf.download(tickers=optionNames, start=start, end=end)["Close"]
         # Merge the stock and option prices
         if len(stockNames) > 0 and len(optionNames) > 0:
             portfolioData = pd.merge(stockPrices, optionPrices, on="Date")
@@ -57,6 +65,7 @@ class PortfolioManager:
             portfolioData = stockPrices
         elif len(optionNames) > 0:
             portfolioData = optionPrices
+        portfolioData = portfolioData.dropna()
         return portfolioData
 
     # calculate portfolio value from portfolio data
@@ -77,6 +86,17 @@ class PortfolioManager:
         portfolioData = self.downloadPortfolioData()
         # Calculate the portfolio returns
         portfolioReturns = portfolioData.pct_change()
+        portfolioReturns = portfolioReturns.dropna()
+        return portfolioReturns
+
+    def generatePorfolioReturnsWithWeights(self):
+        # Calculate the portfolio returns
+        portfolioReturns = self.calculatePortfolioReturns()
+        # Calculate the portfolio weights
+        portfolioWeights = self.calculatePortfolioWeights()
+        # create porfolio weights column
+        portfolioReturns["Portfolio"] = portfolioReturns.dot(portfolioWeights)
+        portfolioReturns = portfolioReturns.dropna()
         return portfolioReturns
 
     # get portfolio correlation matrix
@@ -90,36 +110,19 @@ class PortfolioManager:
     # Cholesky decomposition of the variance covariance matrix
     def getCholeskyDecomposition(self):
         # Calculate the variance covariance matrix
-        varianceCovarianceMatrix = self.calculateVarianceCovarianceMatrix()
-        # Calculate the Cholesky decomposition
+        portfolioReturns = self.calculatePortfolioReturns()
+        varianceCovarianceMatrix = portfolioReturns.cov()         # Calculate the Cholesky decomposition
         choleskyDecomposition = np.linalg.cholesky(varianceCovarianceMatrix)
         return choleskyDecomposition
     
     # eigen decomposition of the variance covariance matrix
     def getEigenDecomposition(self):
         # Calculate the variance covariance matrix
-        varianceCovarianceMatrix = self.calculateVarianceCovarianceMatrix()
-        # Calculate the eigen decomposition
+        portfolioReturns = self.calculatePortfolioReturns()
+        varianceCovarianceMatrix = portfolioReturns.cov()        # Calculate the eigen decomposition
         eigenValues, eigenVectors = np.linalg.eig(varianceCovarianceMatrix)
         return eigenValues, eigenVectors
     
-    # varience covariance matrix from portfolio returns
-    def calculateVarianceCovarianceMatrix(self):
-        # Calculate the portfolio returns
-        portfolioReturns = self.calculatePortfolioReturns()
-        # Calculate the variance covariance matrix
-        varianceCovarianceMatrix = portfolioReturns.cov()
-        return varianceCovarianceMatrix
-    
-    # calculate expected portfolio returns
-    def calculateExpectedPortfolioReturns(self):
-        # Calculate the portfolio returns
-        portfolioReturns = self.calculatePortfolioReturns()
-        # Calculate the expected portfolio returns
-        expectedPortfolioReturns = portfolioReturns.mean()
-        print(expectedPortfolioReturns)
-        return expectedPortfolioReturns
-
     # calculate portfolio weights
     def calculatePortfolioWeights(self):
         # download portfolio data
@@ -144,15 +147,13 @@ class PortfolioManager:
             portfolioWeights.append(stock / updatedPortfolioValue)
         for option in uptodatedOptionPrices:
             portfolioWeights.append(option / updatedPortfolioValue)
-
-        print("\nStocks: \n" + str(uptodatedStockPrices) + "\nOptions: \n" + str(uptodatedOptionPrices) + "\nPortfolio Weights: \n" + str(portfolioWeights))
         return np.array(portfolioWeights)
 
-    
     # calculate portfolio standard deviation
     def calculatePortfolioStandardDeviation(self):
         # Calculate the variance covariance matrix
-        varianceCovarianceMatrix = self.calculateVarianceCovarianceMatrix()
+        portfolioReturns = self.calculatePortfolioReturns()
+        varianceCovarianceMatrix = portfolioReturns.cov()
         # Calculate the portfolio weights
         portfolioWeights = self.calculatePortfolioWeights()
         # Calculate the portfolio standard deviation
@@ -172,7 +173,8 @@ class PortfolioManager:
     # calculate portfolio beta
     def calculatePortfolioBeta(self):
         # Calculate the variance covariance matrix
-        varianceCovarianceMatrix = self.calculateVarianceCovarianceMatrix()
+        portfolioReturns = self.calculatePortfolioReturns()
+        varianceCovarianceMatrix = portfolioReturns.cov()
         # Calculate the portfolio weights
         portfolioWeights = self.calculatePortfolioWeights()
         # Calculate the portfolio beta

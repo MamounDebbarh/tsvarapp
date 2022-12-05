@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_cors import CORS
 import yfinance as yf
+import pandas as pd
+import numpy as np
 
 from services.portfolioManager import PortfolioManager
-from services.models import Models
+from services.models import historicalVaR, historicalCVaR, var_parametric, cvar_parametric, mcSim, mcVaR, mcCVaR
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "secret"
@@ -96,19 +98,54 @@ def var():
     # Calculate the value at risk for the portfolio
     # using historical simulation
     portfolio = PortfolioManager(stocksArray, optionsArray)
-    model = Models(portfolio)
-    var = model.calculatePortfolioValueAtRiskWithHistoricalSimulationMethod(confidenceLevel)
-    print("confidenceInterval: ", portfolio.calculateConfidenceInterval(confidenceLevel))
-    print("var: ", var)
-    return { "var": var}
+    # var = model.calculatePortfolioValueAtRiskWithHistoricalSimulationMethod(confidenceLevel)
+    portfolioReturnsWithWeights = portfolio.getPortfolioReturnsWithWeights()
+    hvar = historicalVaR(portfolioReturnsWithWeights)
+    hvar = hvar.to_json()
+    hCVaR  = historicalCVaR(portfolioReturnsWithWeights)
+    hCVaR = hCVaR.to_json()
+    pRet = portfolioReturnsWithWeights * 30
+    pRet = pRet.to_json()
+    pStd = portfolio.getPortfolioStandardDeviation() * np.sqrt(30)
+
+    normVaR = var_parametric(portfolioReturnsWithWeights, pStd)
+    normCVaR = cvar_parametric(portfolioReturnsWithWeights, pStd)
+    tVaR = var_parametric(portfolioReturnsWithWeights, pStd, distribution='t-distribution')
+    tCVaR = cvar_parametric(portfolioReturnsWithWeights, pStd, distribution='t-distribution')
+
+    portfolioSim = mcSim(portfolio=portfolio)
+    portResults = pd.Series(portfolioSim[-1,:])
+    VaR = mcVaR(portResults, alpha=5)
+    CVaR = mcCVaR(portResults, alpha=5)
+
+    print("Portfolio returns: \n", pRet)
+    print("Portfolio standard deviation: ", pStd)
+    print("Value at risk: \n", hvar)
+    print("Conditional value at risk: \n", hCVaR)
+    print("Normal distribution VaR: \n", normVaR)
+    print("Normal distribution CVaR: \n", normCVaR)
+    print("T-distribution VaR: \n", tVaR)
+    print("T-distribution CVaR: \n", tCVaR)
+    print("Monte Carlo VaR: \n", VaR)
+    print("Monte Carlo CVaR: \n", CVaR)
+
+
+    portfolioPerformances = {
+        "portfolioReturns": pRet,
+        "portfolioStandardDeviation": pStd,
+        "valueAtRisk": hvar,
+        "conditionalValueAtRisk": hCVaR,
+
+    }
+
+    return portfolioPerformances
 
 # portfolio daily returns
 @app.route("/portfolioReturns", methods=["GET"])
 def portfolioReturns():
     portfolio = PortfolioManager(stocksArray, optionsArray)
     portfolioReturns = portfolio.calculatePortfolioReturns()
-    portfolioCovarienceMatrix = portfolio.calculateVarianceCovarianceMatrix() # TODO: remove this
-    portfolioExpectedReturns = portfolio.calculateExpectedPortfolioReturns() # TODO: remove this
+    # portfolioExpectedReturns = portfolio.calculateExpectedPortfolioReturns() # TODO: remove this
     # print("portfolioReturns: ", portfolioReturns)
     return { "portfolioReturns": portfolioReturns.to_json(orient="records") }
 
@@ -124,8 +161,8 @@ def portfolioBeta():
 def monteCarloVar():
     confidenceLevel = request.json["confidenceLevel"]  
     portfolio = PortfolioManager(stocksArray, optionsArray)
-    model = Models(portfolio)
-    var = model.calculatePortfolioValueAtRiskWithMonteCarloSimulationMethod(confidenceLevel, 30, 100000)
+    # model = Models()
+    # var = model.calculatePortfolioValueAtRiskWithMonteCarloSimulationMethod(confidenceLevel, 30, 100000)
     print("var: ", var)
     return { "var": var}
 
