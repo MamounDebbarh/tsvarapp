@@ -1,5 +1,5 @@
 Monday
-- create endpoints and implment buttons for them 17h->18h
+- create endpoints and implement buttons for them 17h->18h
 - test values
 - write report 18h->22h
 - do WIP list(Black Scholes option pricing and greek + backtesting) and write down what I did
@@ -40,9 +40,13 @@ volatility cones: https://quantpy.com.au/black-scholes-model/historical-volatili
 
 
 todo:
-- implement Monte Carlo for options
 - Black-Scholes option pricing
 - Black-Scholes greek
+
+Remove merging of options and stocks and reemplement algorithms
+
 - use stocks from quantpy and compare values for all the tools impemented
 - create, organize and clean up endpoints then implement buttons for them
 - start report
+
+

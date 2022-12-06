@@ -127,6 +127,8 @@ def calculatePortfolioValueAtRiskWithMonteCarloSimulationMethod(self, confidence
     portfolioVaR = portfolioVaR.quantile(confidenceLevel)
     return portfolioVaR
 
+
+
 # TODO - calculate portfolio value at risk with garch method
 def calculatePortfolioValueAtRiskWithGarchMethod(self, confidenceLevel):
     return 0
