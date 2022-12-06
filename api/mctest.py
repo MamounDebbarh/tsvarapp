@@ -25,20 +25,42 @@ stocksArray = [
             # },
         ]
 # array of options
-optionsArray = []
+optionsArray = [
+    {
+        "name": "AAPL",
+        "type": "call",
+    },
+    {
+        "name": "GOOG",
+        "type": "put",
+    },
+]
 
-portfolio = PortfolioManager(stocksArray, optionsArray)
-portfolioReturnsWithWeights = portfolio.getPortfolioReturnsWithWeights()
-portfolioReturns = portfolio.getPortfolioReturns()
+# get option informaton from yahoo finance
+def getOptionInfoFromYahooFinance(name, type):
+    # get option info from yahoo finance
+    optionInfo = yf.Ticker(name)
+    # get next valid expiry date
+    nextValidExpiryDate = optionInfo.options[0]
+    # get option info
+    optionInfo = optionInfo.option_chain(nextValidExpiryDate)
+    # get call options
+    callOptions = optionInfo.calls
+    # get put options
+    putOptions = optionInfo.puts
+    # get option info
+    if type == "call":
+        optionInfo = callOptions
+    elif type == "put":
+        optionInfo = putOptions
+    # return option info
+    return optionInfo, nextValidExpiryDate
 
-interestRate = 0.01
-underline = 30
-strike = 40
-T = 240/365
-sigma = 0.3
+print(getOptionInfoFromYahooFinance("AAPL", "call")[0].info())
+
 
 # black scholes
-def blackScholes(interestRate, underline, strike, T, sigma, type="C"):
+def blackScholes(r, S, K, T, sigma, type="C"):
     # calculate black scholes option price
     d1 = (np.log(S/K) + (r + sigma**2/2)*T)/(sigma*np.sqrt(T))
     d2 = d1 - sigma*np.sqrt(T)
@@ -50,3 +72,33 @@ def blackScholes(interestRate, underline, strike, T, sigma, type="C"):
         return price
     except:
         print("Please confirm option type, either 'c' for Call or 'p' for Put!")
+
+# get blackSckoles parameters from AAPL option using getOptionInfoFromYahooFinance
+def getBlackScholesParametersFromAAPLOption():
+    # get option info from yahoo finance
+    optionInfo, nextValidExpiryDate = getOptionInfoFromYahooFinance("AAPL", "call")
+    # conver nextValidExpiryDate to datetime
+    nextValidExpiryDate = dt.datetime.strptime(nextValidExpiryDate, "%Y-%m-%d")
+    # get risk free rate
+    r = optionInfo["openInterest"]
+    # get stock price
+    S = optionInfo["lastPrice"][0]
+    # get strike price
+    K = optionInfo["strike"][0]
+    # get time to maturity
+    T = (nextValidExpiryDate - dt.datetime.now()).days/365
+    # get volatility
+    sigma = optionInfo["impliedVolatility"][0]
+    # return parameters
+    return r, S, K, T, sigma
+    
+
+r, S, K, T, sigma = getBlackScholesParametersFromAAPLOption()
+AAPLOptionPrice = blackScholes(r, S, K, T, sigma, type="c")
+print("risk free rate: ", r)
+print("stock price: ", S)
+print("strike price: ", K)
+print("time to maturity: ", T)
+print("volatility: ", sigma)
+print("AAPL option price: ", AAPLOptionPrice)
+

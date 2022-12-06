@@ -1,22 +1,27 @@
-Monday
-- create endpoints and implement buttons for them 17h->18h
-- test values
-- write report 18h->22h
-- do WIP list(Black Scholes option pricing and greek + backtesting) and write down what I did
-- send to supervisor
-
 Tuesday
-- BackTesting
+- Black-Scholes option pricing
+    - Options data as Black Scholes input
+    - Implement from test file
+
+- Black-Scholes greeks
+
+Remove merging of options and stocks and reemplement algorithms
+
+- create, organize and clean up endpoints then implement buttons for them
+- start report
 
 Wednesday
+- use stocks from quantpy and compare values for all the tools impemented
+- BackTesting
 - Font end styling
 
 Thursday
+- Front end styling
 - Test and report
-- Send to supervisor
 
 Friday
-- Submit
+- report
+- submit
 
 
 Links and work material:
@@ -26,27 +31,11 @@ VaR and CVaR: https://quantpy.com.au/risk-management/value-at-risk-var-and-condi
                 https://www.youtube.com/watch?v=bTZP86fHIuI&t=1s
                 https://www.youtube.com/watch?v=f9MAFvP5-pA
 
-Monte Carlo for options: https://www.youtube.com/watch?v=pR32aii3shk
 Monte Carlo for stocks: https://www.youtube.com/watch?v=6-dhdMDiYWQ
 
 Black-Scholes option pricing: https://quantpy.com.au/black-scholes-model/implementing-black-scholes-option-pricing/
                 https://www.youtube.com/watch?v=FzeXWMlTDHY
 
 Black-Scholes greek: https://quantpy.com.au/black-scholes-model/calculating-black-scholes-greeks-with-python/
-
-Extensions:
-volatility cones: https://quantpy.com.au/black-scholes-model/historical-volatility-cones/
-
-
-
-todo:
-- Black-Scholes option pricing
-- Black-Scholes greek
-
-Remove merging of options and stocks and reemplement algorithms
-
-- use stocks from quantpy and compare values for all the tools impemented
-- create, organize and clean up endpoints then implement buttons for them
-- start report
 
 
