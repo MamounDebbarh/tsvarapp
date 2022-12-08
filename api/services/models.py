@@ -128,12 +128,3 @@ def calculatePortfolioValueAtRiskWithMonteCarloSimulationMethod(self, confidence
     return portfolioVaR
 
 
-
-# TODO - calculate portfolio value at risk with garch method
-def calculatePortfolioValueAtRiskWithGarchMethod(self, confidenceLevel):
-    return 0
-
-# TODO - calculate portfolio value at risk with cornish fisher method
-def calculatePortfolioValueAtRiskWithCornishFisherMethod(self, confidenceLevel):
-    return 0
-

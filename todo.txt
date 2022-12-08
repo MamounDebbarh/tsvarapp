@@ -1,21 +1,21 @@
-Wednesday
-- Black-Scholes option pricing
-    - Options data as Black Scholes input
-    - Implement from test file
-- Black-Scholes greeks
-- Remove merging of options and stocks and reemplement algorithms
-- create, organize and clean up endpoints then implement buttons for them
-- use stocks from quantpy and compare values for all the tools impemented
-
 Thursday
+
+- backend front end integration     2 * 45 min
+    - create, organize and clean up endpoints 
+    - implement buttons for them
+    - show options and stocks data on the porfolio
+
+- Start BackTesting
+
+Friday
 - BackTesting
 - Front end styling
 
-Friday
+Saturday
 - front end styling
 - Test and report
 
-Saturday
+Sunday
 - Test and report
 - submit
 

@@ -26,13 +26,22 @@ stocksArray = [
         ]
 # array of options
 optionsArray = [
+    # {
+    #     "name": "AAPL",
+    #     "shares": 1,
+    #     "type": "call",
+    #     "price": 0,
+    # },
+    # {
+    #     "name": "GOOG",
+    #     "shares": 2,
+    #     "type": "put",
+    #     "price": 0,
+    # },
     {
-        "name": "AAPL",
+        "name": "TSLA",
+        "shares": 3,
         "type": "call",
-    },
-    {
-        "name": "GOOG",
-        "type": "put",
     },
 ]
 
@@ -56,49 +65,58 @@ def getOptionInfoFromYahooFinance(name, type):
     # return option info
     return optionInfo, nextValidExpiryDate
 
-print(getOptionInfoFromYahooFinance("AAPL", "call")[0].info())
+# print(getOptionInfoFromYahooFinance("AAPL", "call")[0].info())
 
 
 # black scholes
-def blackScholes(r, S, K, T, sigma, type="C"):
+def blackScholes(r, S, K, T, sigma, type="call"):
     # calculate black scholes option price
     d1 = (np.log(S/K) + (r + sigma**2/2)*T)/(sigma*np.sqrt(T))
     d2 = d1 - sigma*np.sqrt(T)
-    try:
-        if type == "c":
-            price = S*norm.cdf(d1, 0, 1) - K*np.exp(-r*T)*norm.cdf(d2, 0, 1)
-        elif type == "p":
-            price = K*np.exp(-r*T)*norm.cdf(-d2, 0, 1) - S*norm.cdf(-d1, 0, 1)
-        return price
-    except:
-        print("Please confirm option type, either 'c' for Call or 'p' for Put!")
+    if type == "call":
+        price = S*norm.cdf(d1, 0, 1) - K*np.exp(-r*T)*norm.cdf(d2, 0, 1)
+    elif type == "put":
+        price = K*np.exp(-r*T)*norm.cdf(-d2, 0, 1) - S*norm.cdf(-d1, 0, 1)
+    return price
+    
 
 # get blackSckoles parameters from AAPL option using getOptionInfoFromYahooFinance
 def getBlackScholesParametersFromAAPLOption():
-    # get option info from yahoo finance
-    optionInfo, nextValidExpiryDate = getOptionInfoFromYahooFinance("AAPL", "call")
-    # conver nextValidExpiryDate to datetime
-    nextValidExpiryDate = dt.datetime.strptime(nextValidExpiryDate, "%Y-%m-%d")
-    # get risk free rate
-    r = optionInfo["openInterest"]
-    # get stock price
-    S = optionInfo["lastPrice"][0]
-    # get strike price
-    K = optionInfo["strike"][0]
-    # get time to maturity
-    T = (nextValidExpiryDate - dt.datetime.now()).days/365
-    # get volatility
-    sigma = optionInfo["impliedVolatility"][0]
-    # return parameters
-    return r, S, K, T, sigma
+    # get options info from yahoo finance for all options in the portfolio
+        for option in optionsArray:
+            # get option info from yahoo finance
+            optionInfo, nextValidExpiryDate = getOptionInfoFromYahooFinance(option["name"], option["type"])
+            # conver nextValidExpiryDate to datetime
+            nextValidExpiryDate = dt.datetime.strptime(nextValidExpiryDate, "%Y-%m-%d")
+            # get stock price
+            S = optionInfo["lastPrice"][0]
+            # get strike price
+            K = optionInfo["strike"][0]
+            # get days between now and nextValidExpiryDate
+            T = (nextValidExpiryDate - dt.datetime.now()).days
+            if T == 0:
+                T = 1
+            # get volatility
+            sigma = optionInfo["impliedVolatility"][0]
+            # get risk free rate
+            r = 0.01
+            # run black scholes to get option price
+            print("S: ", S)
+            print("K: ", K)
+            print("T: ", T)
+            print("sigma: ", sigma)
+            print("r: ", r)
+            option[ "S" ] = S
+            option[ "K" ] = K
+            option[ "T" ] = T
+            option["sigma"] = sigma
+            price = blackScholes(r, S, K, T, sigma, option["type"])
+            # add parameters to option
+            print("price: ", price)
+            option["price"] = price
+        return optionsArray
     
 
-r, S, K, T, sigma = getBlackScholesParametersFromAAPLOption()
-AAPLOptionPrice = blackScholes(r, S, K, T, sigma, type="c")
-print("risk free rate: ", r)
-print("stock price: ", S)
-print("strike price: ", K)
-print("time to maturity: ", T)
-print("volatility: ", sigma)
+AAPLOptionPrice = getBlackScholesParametersFromAAPLOption()
 print("AAPL option price: ", AAPLOptionPrice)
 

@@ -13,21 +13,40 @@ CORS(app, resources = {r"/*": {"origins": "*"}})
 
 # array of stocks
 stocksArray = [
-            {
-                "name": "AAPL",
-                "shares": 1,
-            },
-            {
-                "name": "GOOG",
-                "shares": 2,
-            },
-            {
-                "name": "MSFT",
-                "shares": 3,
-            },
-        ]
+    {
+        "name": "AAPL",
+        "shares": 1,
+    },
+    {
+        "name": "GOOG",
+        "shares": 2,
+    },
+    {
+        "name": "MSFT",
+        "shares": 3,
+    },
+]
 # array of options
-optionsArray = []
+optionsArray = [
+    {
+        "name": "AAPL",
+        "shares": 1,
+        "type": "call",
+        "r": 0.1,
+    },
+    {
+        "name": "GOOG",
+        "shares": 2,
+        "type": "put",
+        "r": 0.1,
+    },
+    {
+        "name": "MSFT",
+        "shares": 3,
+        "type": "call",
+        "r": 0.1,
+    },
+]
 
 @app.route("/stocks", methods=["GET"])
 def stocks():
@@ -166,7 +185,13 @@ def monteCarloVar():
     print("var: ", var)
     return { "var": var}
 
-
+# get portfolio option prices
+@app.route("/portfolioOptionPrices", methods=["GET"])
+def portfolioOptionPrices():
+    portfolio = PortfolioManager(stocksArray, optionsArray)
+    portfolioOptionPrices = portfolio.getOptionPricesFromBlackScholes()
+    optionsGreeks = portfolio.calculateAllGreeks()
+    return { "portfolioOptionPrices": portfolioOptionPrices }
 
 
 
