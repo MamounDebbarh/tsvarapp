@@ -20,9 +20,18 @@ import {
 
 import { useEffect, useState } from "react";
 
+interface PortfolioInformation {
+  choleskyDecomposition: string;
+  correlationMatrix: string;
+  eigenDecomposition: string;
+  returnsWithWeights: string;
+}
+
 interface Stock {
   name: string;
+  price: number;
   shares: number;
+  weight: number;
 }
 
 interface Option {
@@ -129,6 +138,7 @@ function Portfolio() {
     fetch("/stocks").then((response) =>
       response.json().then((data) => {
         setStockList(data.stocks);
+        console.log(data.stocks);
       })
     );
   };
@@ -137,8 +147,21 @@ function Portfolio() {
     fetch("/options").then((response) =>
       response.json().then((data) => {
         setOptionList(data.options);
+        console.log(data.options);
       })
     );
+  };
+
+  // calculate portfolio value using stock price and stock shares and option price and option shares
+  const calculatePortfolioValue = () => {
+    let portfolioValue = 0;
+    stockList.forEach((stock) => {
+      portfolioValue += stock.price * stock.shares;
+    });
+    optionList.forEach((option) => {
+      portfolioValue += option.price * option.shares;
+    });
+    return portfolioValue;
   };
 
   useEffect(() => {
@@ -151,6 +174,9 @@ function Portfolio() {
       <CardContent>
         <Typography variant="h5" component="div">
           Portfolio
+        </Typography>
+        <Typography sx={{ mb: 1.5 }} color="text.secondary">
+          Portfolio Value: ${Math.round(calculatePortfolioValue() * 100) / 100}
         </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
@@ -195,29 +221,41 @@ function Portfolio() {
             <Button onClick={handleStockSubmit}>Add</Button>
           </DialogActions>
         </Dialog>
-
         {stockList.length < 1 ? (
           <Typography> No stocks added yet</Typography>
         ) : (
           <List>
             {stockList.map((stock, i) => (
               <ListItem key={i}>
-                <Grid container spacing={2}>
-                  <Grid item xs={6} sm={6}>
-                    <Typography style={{ left: 5 }}>
-                      {stock.name} - {stock.shares}
+                <Accordion style={{ width: "100%" }}>
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={6} sm={6}>
+                        <Typography>
+                          {stock.name} $
+                          {Math.round(stock.shares * stock.price * 100) / 100}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Button
+                          variant="contained"
+                          style={{ right: 5 }}
+                          onClick={() => handleStockDelete(stock.name)}
+                        >
+                          -
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Typography>Stock name: {stock.name}</Typography>
+                    <Typography>Number of shares: {stock.shares}</Typography>
+                    <Typography>
+                      Price: ${Math.round(stock.price * 100) / 100}
                     </Typography>
-                  </Grid>
-                  <Grid item xs={6} sm={6}>
-                    <Button
-                      variant="contained"
-                      style={{ right: 5 }}
-                      onClick={() => handleStockDelete(stock.name)}
-                    >
-                      -
-                    </Button>
-                  </Grid>
-                </Grid>
+                    <Typography>Weight: {stock.weight}</Typography>
+                  </AccordionDetails>
+                </Accordion>
               </ListItem>
             ))}
           </List>
@@ -278,9 +316,8 @@ function Portfolio() {
                     <Grid container spacing={2}>
                       <Grid item xs={6} sm={6}>
                         <Typography>
-                          {option.name}{" "}
+                          {option.name} $
                           {Math.round(option.shares * option.price * 100) / 100}
-                          $
                         </Typography>
                       </Grid>
                       <Grid item xs={2} sm={2}>

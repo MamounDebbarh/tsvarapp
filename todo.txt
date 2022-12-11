@@ -1,23 +1,25 @@
 Sunday 15h00 - ...
 - Front end:
-    - Portfolio     15h00-15h40
+    - Portfolio     
         - options information with greeks       (DONE)
     
-    - Portfolio     16h00-16h40
-        - Fix when only one stock in portfolio
-        - Stocks information with price , shares, weight, last day change 
-        - Portfolio Value
+    - Portfolio     
+        - Fix when only one stock in portfolio (DONE)
+        - Stocks information with price , shares, weight, last day change  (DONE)
+        - Portfolio Value (DONE)
 
-    - Main Menu    17h00-17h40
-        - Integrate and time in Days
-        - Show all vars in modal
+    - Main Menu   
+        - Integrate and time in Days (DONE)
+        - get all Vars working (DONE)
+        - get all Vars values
+        - display all Vars
         - how does it work layout
         - fields validation
     
-- Code Cleanup:     17h40-18h20
+- Code Cleanup:     
     - remove unecessary checks (is not series or panda etc...)
 
-- report:      19h00-...
+- report:     
     - All theoric sections with the formulas and the explanation. 
         Get at least 10k words from this and proofread as we go. 
     - Testing sections with plots and screenshots.

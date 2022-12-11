@@ -10,21 +10,16 @@ import scipy.stats as st
 from services.portfolioManager import PortfolioManager
 
 # calculate portfolio value at risk with historical simulation method
-def calculatePortfolioValueAtRiskWithHistoricalSimulationMethod(confidenceLevel):
+def calculateVarstdmean(confidenceLevel, portfolioManager):
     # Calculate the portfolio returns
-    portfolioReturns = PortfolioManager.calculatePortfolioReturns()
+    portfolioReturns = portfolioManager.calculatePortfolioReturns()
     # Calculate the portfolio mean with porfolio weights
-    portfolioMean = np.dot(portfolioReturns.mean(), PortfolioManager.calculatePortfolioWeights())
+    portfolioMean = np.dot(portfolioReturns.mean(), portfolioManager.calculatePortfolioWeights())
     # Calculate the porfolio standard deviation with portfolio weights
-    portfolioStandardDeviation = np.sqrt(np.dot(PortfolioManager.calculatePortfolioWeights().T, np.dot(portfolioReturns.cov(), PortfolioManager.calculatePortfolioWeights())))
+    portfolioStandardDeviation = np.sqrt(np.dot(portfolioManager.calculatePortfolioWeights().T, np.dot(portfolioReturns.cov(), portfolioManager.calculatePortfolioWeights())))
     # Calculate the portfolio value at risk with historical simulation method
     portfolioValueAtRiskWithHistoricalSimulationMethod = norm.ppf(confidenceLevel, portfolioMean, portfolioStandardDeviation)
     return portfolioValueAtRiskWithHistoricalSimulationMethod
-
-# calculate portfolio value at risk with historical simulation method over x days
-def calculatePortfolioValueAtRiskWithHistoricalSimulationMethodOverXDays(self, confidenceLevel, days):
-    var = self.calculatePortfolioValueAtRiskWithHistoricalSimulationMethod(confidenceLevel)
-    return var * np.sqrt(days)
 
 def historicalVaR(portfolioReturnsWithWeights, alpha=5):
     if isinstance(portfolioReturnsWithWeights, pd.Series):
@@ -99,7 +94,7 @@ def mcCVaR(returns, alpha=5):
 
 
 # Geometric brownian motion simulation for stock price prediction with monte carlo method
-def geometricBrownianMotion(self, stockName, timePeriod, numberOfSimulations):
+def geometricBrownianMotion(stockName, timePeriod, numberOfSimulations):
     # Get the stock prices
     ticker = yf.Ticker(stockName)
     stockPrices = ticker.history(period="max")["Close"]
@@ -116,11 +111,11 @@ def geometricBrownianMotion(self, stockName, timePeriod, numberOfSimulations):
     return stockPrices
 
 # calculate portfolio value at risk with monte carlo simulation method
-def calculatePortfolioValueAtRiskWithMonteCarloSimulationMethod(self, confidenceLevel, timePeriod, numberOfSimulations):
+def useBrownianMotionVar(portfolio ,confidenceLevel, timePeriod, numberOfSimulations):
     # Calculate the portfolio value at risk with monte carlo simulation method
     portfolioVaR = []
-    for stock in PortfolioManager.stocksArray:
-        stockPrices = self.geometricBrownianMotion(stock["name"], timePeriod, numberOfSimulations)
+    for stock in portfolio.stocksArray:
+        stockPrices = geometricBrownianMotion(stock["name"], timePeriod, numberOfSimulations)
         portfolioVaR.append(stockPrices[-1] * stock["shares"])
     # Calculate the portfolio value at risk with monte carlo simulation method
     portfolioVaR = pd.DataFrame(portfolioVaR).sum()

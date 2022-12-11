@@ -1,23 +1,26 @@
-import { Button, Grid, Slider, TextField } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Grid,
+  Slider,
+  TextField,
+} from "@mui/material";
 import { useState } from "react";
 
 function VarCalculator() {
-  const [confidenceLevel, setConfidenceLevel] = useState<
-    number | string | Array<number | string>
-  >(90);
-  const [varValue, setVarValue] = useState(0);
-  const [portfolioValue, setPortfolioValue] = useState(0);
-  const [portfolioRisk, setPortfolioRisk] = useState(0);
-  const [portfolioReturns, setPortfolioReturns] = useState(0);
+  const [confidenceLevel, setConfidenceLevel] = useState<number>(90);
+  const [timeInDays, setTimeInDays] = useState(1);
+  const [openVarDialog, setOpenVarDialog] = useState(false);
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
-    setConfidenceLevel(newValue);
+    setConfidenceLevel(newValue as number);
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setConfidenceLevel(
-      event.target.value === "" ? "" : Number(event.target.value)
-    );
+    setConfidenceLevel(Number(event.target.value));
   };
 
   const handleBlur = () => {
@@ -28,62 +31,44 @@ function VarCalculator() {
     }
   };
 
+  const handleVarDialogOpen = () => {
+    setOpenVarDialog(true);
+  };
+
+  const handleVarDialogClose = () => {
+    setOpenVarDialog(false);
+  };
+
   const handleVarCalculation = () => {
     // post request to backend /var endpoint with confidenceLevel
     // then fetch var from backend and setVar
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ confidenceLevel: confidenceLevel }),
+      body: JSON.stringify({
+        confidenceLevel: confidenceLevel / 100,
+        timeInDays: timeInDays,
+      }),
     };
     fetch(`/var`, requestOptions).then((response) => {
       response.json();
       console.log(response.json());
     });
+    handleVarDialogOpen();
     console.log("Var Calculated");
-  };
-
-  const handlePortfolioReturns = () => {
-    // get request to backend /portfolioReturns endpoint
-    // then fetch portfolioReturns from backend and setPortfolioReturns
-    fetch(`/portfolioReturns`).then((response) => {
-      response.json();
-      console.log(response.json());
-    });
-    console.log("Portfolio Returns Calculated");
   };
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={6}>
-        <TextField
-          id="outlined-basic"
-          label="Position Amount"
-          variant="outlined"
-        />
-      </Grid>
-      <Grid item xs={6}>
-        <TextField
-          id="outlined-basic"
-          label="Asset Volatility (%)"
-          variant="outlined"
-        />
-      </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={12}>
         <TextField
           id="outlined-basic"
           label="Time in Days"
           variant="outlined"
+          onChange={(e) => setTimeInDays(Number(e.target.value))}
         />
       </Grid>
-      <Grid item xs={6}>
-        <TextField
-          id="outlined-basic"
-          label="Confidence Interval (%)"
-          variant="outlined"
-        />
-      </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={8}>
         <Slider
           value={typeof confidenceLevel === "number" ? confidenceLevel : 90}
           onChange={handleSliderChange}
@@ -94,7 +79,7 @@ function VarCalculator() {
           step={0.1}
         />
       </Grid>
-      <Grid item xs={3}>
+      <Grid item xs={4}>
         <TextField
           value={confidenceLevel}
           size="small"
@@ -114,11 +99,12 @@ function VarCalculator() {
           Calculate
         </Button>
       </Grid>
-      <Grid item xs={3}>
-        <Button variant="contained" onClick={handlePortfolioReturns}>
-          handlePortfolioReturns
-        </Button>
-      </Grid>
+      <Dialog open={openVarDialog} onClose={handleVarDialogClose}>
+        <DialogTitle> Value at Risk</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Value at Risk is</DialogContentText>
+        </DialogContent>
+      </Dialog>
     </Grid>
   );
 }

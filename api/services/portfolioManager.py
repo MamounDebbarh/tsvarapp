@@ -35,9 +35,12 @@ class PortfolioManager:
             return "no stocks in portfolio"
         portfolioData = portfolioData.dropna()
         # name column after stock name if only one stock in portfolio
-        print(portfolioData)
         if len(self.stocksArray) == 1:
-            portfolioData = portfolioData.rename(columns={stockNames[0]: "Portfolio"})
+            #convert portfolioData to dataframe
+            portfolioData = pd.DataFrame(portfolioData)
+            # rename Close column to stock name
+            portfolioData = portfolioData.rename(columns={"Close": self.stocksArray[0]["name"]})
+
         return portfolioData
 
     # calculate portfolio value from portfolio data
@@ -49,6 +52,7 @@ class PortfolioManager:
         # name column after stock name if only one stock in portfolio
         for stock in self.stocksArray:
             portfolioValue += stock["shares"] * portfolioData[stock["name"]]
+            stock["price"] = portfolioData[stock["name"]][-1]
         return portfolioValue
 
     # calculate portfolio daily returns
@@ -68,10 +72,11 @@ class PortfolioManager:
         # create porfolio weights column
         if len(self.stocksArray) == 1:
             portfolioReturns["Portfolio"] = 1
-            return portfolioReturns
         else:
             portfolioReturns["Portfolio"] = portfolioReturns.dot(portfolioWeights)
         portfolioReturns = portfolioReturns.dropna()
+        for stock in self.stocksArray:
+            stock["weight"] = portfolioWeights[self.stocksArray.index(stock)]
         return portfolioReturns
 
     # get portfolio correlation matrix
