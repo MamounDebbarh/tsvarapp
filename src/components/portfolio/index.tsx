@@ -1,4 +1,8 @@
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Button,
   Card,
   CardContent,
@@ -13,6 +17,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+
 import { useEffect, useState } from "react";
 
 interface Stock {
@@ -21,8 +26,19 @@ interface Stock {
 }
 
 interface Option {
+  K: number;
+  S: number;
+  T: number;
+  delta: number;
+  gamma: number;
   name: string;
+  price: number;
+  rho: number;
   shares: number;
+  sigma: number;
+  theta: number;
+  type: string;
+  vega: number;
 }
 
 function Portfolio() {
@@ -257,22 +273,47 @@ function Portfolio() {
           <List>
             {optionList.map((option, i) => (
               <ListItem key={i}>
-                <Grid container spacing={2}>
-                  <Grid item xs={6} sm={6}>
-                    <Typography style={{ left: 5 }}>
-                      {option.name} - {option.shares}
+                <Accordion style={{ width: "100%" }}>
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={6} sm={6}>
+                        <Typography>
+                          {option.name}{" "}
+                          {Math.round(option.shares * option.price * 100) / 100}
+                          $
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Button
+                          variant="contained"
+                          style={{ right: 5 }}
+                          onClick={() => handleOptionDelete(option.name)}
+                        >
+                          -
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Typography>Option name: {option.name}</Typography>
+                    <Typography>
+                      Number of contracts: {option.shares}
                     </Typography>
-                  </Grid>
-                  <Grid item xs={6} sm={6}>
-                    <Button
-                      variant="contained"
-                      style={{ right: 5 }}
-                      onClick={() => handleOptionDelete(option.name)}
-                    >
-                      -
-                    </Button>
-                  </Grid>
-                </Grid>
+                    <Typography> Option type: {option.type}</Typography>
+                    <Typography> Option price: {option.price} </Typography>
+                    <Typography> Strike price: {option.S} </Typography>
+                    <Typography>
+                      {" "}
+                      Expiration date in days: {option.T}
+                    </Typography>
+                    <Typography> Volatility: {option.sigma} </Typography>
+                    <Typography> Delta: {option.delta} </Typography>
+                    <Typography> Gamma: {option.gamma} </Typography>
+                    <Typography> Theta: {option.theta} </Typography>
+                    <Typography> Vega: {option.vega} </Typography>
+                    <Typography> Rho: {option.rho} </Typography>
+                  </AccordionDetails>
+                </Accordion>
               </ListItem>
             ))}
           </List>

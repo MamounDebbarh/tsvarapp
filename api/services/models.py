@@ -12,11 +12,11 @@ from services.portfolioManager import PortfolioManager
 # calculate portfolio value at risk with historical simulation method
 def calculatePortfolioValueAtRiskWithHistoricalSimulationMethod(confidenceLevel):
     # Calculate the portfolio returns
-    portfolioReturns = PortfolioManager.getPortfolioReturns()
+    portfolioReturns = PortfolioManager.calculatePortfolioReturns()
     # Calculate the portfolio mean with porfolio weights
-    portfolioMean = np.dot(portfolioReturns.mean(), PortfolioManager.getPortfolioWeights())
+    portfolioMean = np.dot(portfolioReturns.mean(), PortfolioManager.calculatePortfolioWeights())
     # Calculate the porfolio standard deviation with portfolio weights
-    portfolioStandardDeviation = np.sqrt(np.dot(PortfolioManager.getPortfolioWeights().T, np.dot(portfolioReturns.cov(), PortfolioManager.getPortfolioWeights())))
+    portfolioStandardDeviation = np.sqrt(np.dot(PortfolioManager.calculatePortfolioWeights().T, np.dot(portfolioReturns.cov(), PortfolioManager.calculatePortfolioWeights())))
     # Calculate the portfolio value at risk with historical simulation method
     portfolioValueAtRiskWithHistoricalSimulationMethod = norm.ppf(confidenceLevel, portfolioMean, portfolioStandardDeviation)
     return portfolioValueAtRiskWithHistoricalSimulationMethod
@@ -66,11 +66,11 @@ def cvar_parametric(portofolioReturns, portfolioStd, distribution='normal', alph
 
 def mcSim(portfolio):
     # Monte Carlo Method
-    portfolioReturns = portfolio.getPortfolioReturns()
+    portfolioReturns = portfolio.calculatePortfolioReturns()
     mc_sims = 400 # number of simulations
     T = 100 #timeframe in days
-    weights = portfolio.getPortfolioWeights()
-    meanM = np.full(shape=(T, len(weights)), fill_value=portfolio.getPortfolioReturns().mean())
+    weights = portfolio.calculatePortfolioWeights()
+    meanM = np.full(shape=(T, len(weights)), fill_value=portfolio.calculatePortfolioReturns().mean())
     meanM = meanM.T
     portfolio_sims = np.full(shape=(T, mc_sims), fill_value=0.0)
     varianceCovarianceMatrix = portfolioReturns.cov()

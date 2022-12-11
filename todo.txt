@@ -1,37 +1,31 @@
-Thursday
+Sunday 15h00 - ...
+- Front end:
+    - Portfolio     15h00-15h40
+        - options information with greeks       (DONE)
+    
+    - Portfolio     16h00-16h40
+        - Fix when only one stock in portfolio
+        - Stocks information with price , shares, weight, last day change 
+        - Portfolio Value
 
-- backend front end integration     2 * 45 min
-    - create, organize and clean up endpoints 
-    - implement buttons for them
-    - show options and stocks data on the porfolio
+    - Main Menu    17h00-17h40
+        - Integrate and time in Days
+        - Show all vars in modal
+        - how does it work layout
+        - fields validation
+    
+- Code Cleanup:     17h40-18h20
+    - remove unecessary checks (is not series or panda etc...)
 
-- Start BackTesting
-
-Friday
-- BackTesting
-- Front end styling
-
-Saturday
-- front end styling
-- Test and report
-
-Sunday
-- Test and report
-- submit
-
-
-Links and work material:
-Requirements:
-VaR and CVaR: https://quantpy.com.au/risk-management/value-at-risk-var-and-conditional-var-cvar/
-                https://www.youtube.com/watch?v=90DeUSZ9fEk&t=547s
-                https://www.youtube.com/watch?v=bTZP86fHIuI&t=1s
-                https://www.youtube.com/watch?v=f9MAFvP5-pA
-
-Monte Carlo for stocks: https://www.youtube.com/watch?v=6-dhdMDiYWQ
-
-Black-Scholes option pricing: https://quantpy.com.au/black-scholes-model/implementing-black-scholes-option-pricing/
-                https://www.youtube.com/watch?v=FzeXWMlTDHY
-
-Black-Scholes greek: https://quantpy.com.au/black-scholes-model/calculating-black-scholes-greeks-with-python/
-
+- report:      19h00-...
+    - All theoric sections with the formulas and the explanation. 
+        Get at least 10k words from this and proofread as we go. 
+    - Testing sections with plots and screenshots.
+        Get as many relevant plots as possible (8-10)
+        play with words and make it look good.
+    - References
+    - introduction and conclusion
+    - How could I make it better
+    - Proofread 15k words report
+    - Submit
 

@@ -12,32 +12,12 @@ class PortfolioManager:
     def __init__(self, stocksArray, optionsArray):
         self.stocksArray = stocksArray
         self.optionsArray = optionsArray
-        self.portfolioValue = self.calculatePortfolioValue()
-        self.portfolioWeights = self.calculatePortfolioWeights()
-        self.portfolioReturns = self.calculatePortfolioReturns()
-        self.portfolioReturnsWithWeights = self.generatePorfolioReturnsWithWeights()
-        self.portfolioStandardDeviation = self.calculatePortfolioStandardDeviation()
 
     def getStocksArray(self):
         return self.stocksArray
     
     def getOptionsArray(self):
         return self.optionsArray
-    
-    def getPortfolioValue(self):
-        return self.portfolioValue
-
-    def getPortfolioWeights(self):
-        return self.portfolioWeights
-
-    def getPortfolioReturns(self):
-        return self.portfolioReturns
-
-    def getPortfolioStandardDeviation(self):
-        return self.portfolioStandardDeviation
-
-    def getPortfolioReturnsWithWeights(self):
-        return self.portfolioReturnsWithWeights
 
     # get download portfolio data
     def downloadPortfolioData(self):
@@ -54,6 +34,10 @@ class PortfolioManager:
         else:
             return "no stocks in portfolio"
         portfolioData = portfolioData.dropna()
+        # name column after stock name if only one stock in portfolio
+        print(portfolioData)
+        if len(self.stocksArray) == 1:
+            portfolioData = portfolioData.rename(columns={stockNames[0]: "Portfolio"})
         return portfolioData
 
     # calculate portfolio value from portfolio data
@@ -62,6 +46,7 @@ class PortfolioManager:
         portfolioData = self.downloadPortfolioData()
         # Calculate the portfolio value
         portfolioValue = 0
+        # name column after stock name if only one stock in portfolio
         for stock in self.stocksArray:
             portfolioValue += stock["shares"] * portfolioData[stock["name"]]
         return portfolioValue
@@ -81,14 +66,18 @@ class PortfolioManager:
         # Calculate the portfolio weights
         portfolioWeights = self.calculatePortfolioWeights()
         # create porfolio weights column
-        portfolioReturns["Portfolio"] = portfolioReturns.dot(portfolioWeights)
+        if len(self.stocksArray) == 1:
+            portfolioReturns["Portfolio"] = 1
+            return portfolioReturns
+        else:
+            portfolioReturns["Portfolio"] = portfolioReturns.dot(portfolioWeights)
         portfolioReturns = portfolioReturns.dropna()
         return portfolioReturns
 
     # get portfolio correlation matrix
     def getPortfolioCorrelationMatrix(self):
         # Calculate the portfolio returns
-        portfolioReturns = self.getPortfolioReturns()
+        portfolioReturns = self.calculatePortfolioReturns()
         # Calculate the portfolio correlation matrix
         portfolioCorrelationMatrix = portfolioReturns.corr()
         return portfolioCorrelationMatrix
@@ -172,11 +161,11 @@ class PortfolioManager:
     # Calculate confidence interval
     def calculateConfidenceInterval(self, confidenceLevel):
         # Calculate the portfolio returns
-        portfolioReturns = self.getPortfolioReturns()
+        portfolioReturns = self.calculatePortfolioReturns()
         # Calculate the portfolio mean with porfolio weights
-        portfolioMean = np.dot(portfolioReturns.mean(), self.getPortfolioWeights())
+        portfolioMean = np.dot(portfolioReturns.mean(), self.calculatePortfolioWeights())
         # Calculate the porfolio standard deviation with portfolio weights
-        portfolioStandardDeviation = np.sqrt(np.dot(self.getPortfolioWeights().T, np.dot(portfolioReturns.cov(), self.getPortfolioWeights())))
+        portfolioStandardDeviation = np.sqrt(np.dot(self.calculatePortfolioWeights().T, np.dot(portfolioReturns.cov(), self.calculatePortfolioWeights())))
         # Calculate the confidence interval
         confidenceInterval = norm.interval(confidenceLevel, portfolioMean, portfolioStandardDeviation)
         return confidenceInterval

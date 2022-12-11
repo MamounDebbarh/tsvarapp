@@ -13,14 +13,10 @@ CORS(app, resources = {r"/*": {"origins": "*"}})
 
 # array of stocks
 stocksArray = [
-    {
-        "name": "AAPL",
-        "shares": 1,
-    },
-    {
-        "name": "GOOG",
-        "shares": 2,
-    },
+    # {
+    #     "name": "AMZN",
+    #     "shares": 2,
+    # },
     {
         "name": "MSFT",
         "shares": 3,
@@ -40,22 +36,28 @@ optionsArray = [
         "type": "put",
         "r": 0.1,
     },
-    {
-        "name": "MSFT",
-        "shares": 3,
-        "type": "call",
-        "r": 0.1,
-    },
 ]
 
 @app.route("/stocks", methods=["GET"])
 def stocks():
+    portfolio = PortfolioManager(stocksArray, optionsArray)
+    returnsWithWeights = portfolio.generatePorfolioReturnsWithWeights()
+    correlationMatrix = portfolio.getPortfolioCorrelationMatrix()
+    choleskyDecomposition = portfolio.getCholeskyDecomposition()
+    eigenDecomposition = portfolio.getEigenDecomposition()
     return {
-        "stocks": stocksArray
+        "stocks": stocksArray,
+        "returnsWithWeights": returnsWithWeights,
+        "correlationMatrix": correlationMatrix,
+        "choleskyDecomposition": choleskyDecomposition,
+        "eigenDecomposition": eigenDecomposition,
     }
 
 @app.route("/options", methods=["GET"])
 def options():
+    portfolio = PortfolioManager(stocksArray, optionsArray)
+    portfolioOptionPrices = portfolio.getOptionPricesFromBlackScholes()
+    optionsGreeks = portfolio.calculateAllGreeks()
     return {
         "options": optionsArray
     }
@@ -118,14 +120,14 @@ def var():
     # using historical simulation
     portfolio = PortfolioManager(stocksArray, optionsArray)
     # var = model.calculatePortfolioValueAtRiskWithHistoricalSimulationMethod(confidenceLevel)
-    portfolioReturnsWithWeights = portfolio.getPortfolioReturnsWithWeights()
+    portfolioReturnsWithWeights = portfolio.generatePorfolioReturnsWithWeights()
     hvar = historicalVaR(portfolioReturnsWithWeights)
     hvar = hvar.to_json()
     hCVaR  = historicalCVaR(portfolioReturnsWithWeights)
     hCVaR = hCVaR.to_json()
     pRet = portfolioReturnsWithWeights * 30
     pRet = pRet.to_json()
-    pStd = portfolio.getPortfolioStandardDeviation() * np.sqrt(30)
+    pStd = portfolio.calculatePortfolioStandardDeviation() * np.sqrt(30)
 
     normVaR = var_parametric(portfolioReturnsWithWeights, pStd)
     normCVaR = cvar_parametric(portfolioReturnsWithWeights, pStd)
@@ -154,7 +156,6 @@ def var():
         "portfolioStandardDeviation": pStd,
         "valueAtRisk": hvar,
         "conditionalValueAtRisk": hCVaR,
-
     }
 
     return portfolioPerformances
@@ -164,7 +165,6 @@ def var():
 def portfolioReturns():
     portfolio = PortfolioManager(stocksArray, optionsArray)
     portfolioReturns = portfolio.calculatePortfolioReturns()
-    # portfolioExpectedReturns = portfolio.calculateExpectedPortfolioReturns() # TODO: remove this
     # print("portfolioReturns: ", portfolioReturns)
     return { "portfolioReturns": portfolioReturns.to_json(orient="records") }
 
