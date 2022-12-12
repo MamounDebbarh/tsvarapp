@@ -17,18 +17,18 @@ Sunday 15h00 - ...
 GENERATED TEXT:
         
 08h00 - 13h00
-- report:  
-    - All theoric sections with the formulas and the explanation. 
-        Get at least 10k words from this and proofread as we go. 4500 / 10000
-    - Testing sections with plots and screenshots. 
+- Basic report:  
+    - All theoric sections with the formulas and the explanation. (DONE)
+        Get at least 10k words from this and proofread as we go. 10200 / 10000
+    - implement with example format 
+    - introduction and conclusion
+    - References
+    - How to run the code
+
+Testing:
+- Testing sections with plots and screenshots. 
         Get as many relevant plots as possible (8-10)
         play with words and make it look good.
-    - References
-    - introduction and conclusion
-    - How to run
-    - How could I make it better
-    - Proofread 15k words report
-    - implement with example format
 
 13h00 - 15h00
 styling:
