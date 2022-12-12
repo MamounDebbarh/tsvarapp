@@ -11,23 +11,29 @@ Sunday 15h00 - ...
     - Main Menu   
         - Integrate and time in Days (DONE)
         - get all Vars working (DONE)
-        - get all Vars values
-        - display all Vars
-        - how does it work layout
-        - fields validation
-    
-- Code Cleanup:     
-    - remove unecessary checks (is not series or panda etc...)
+        - get all Vars values, with processed formatting (DONE) 
+        - display all Vars (DONE)
 
-- report:     
+GENERATED TEXT:
+        
+08h00 - 13h00
+- report:  
     - All theoric sections with the formulas and the explanation. 
-        Get at least 10k words from this and proofread as we go. 
-    - Testing sections with plots and screenshots.
+        Get at least 10k words from this and proofread as we go. 4500 / 10000
+    - Testing sections with plots and screenshots. 
         Get as many relevant plots as possible (8-10)
         play with words and make it look good.
     - References
     - introduction and conclusion
+    - How to run
     - How could I make it better
     - Proofread 15k words report
-    - Submit
+    - implement with example format
 
+13h00 - 15h00
+styling:
+    - how does it work layout (just need to copy paste here)
+    - do a bit of styling
+
+15h00 HARDSTOP
+- Submit

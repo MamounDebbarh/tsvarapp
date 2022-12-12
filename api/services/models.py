@@ -9,7 +9,7 @@ import scipy.stats as st
 
 from services.portfolioManager import PortfolioManager
 
-# calculate portfolio value at risk with historical simulation method
+# Var calculator testing method. Not used in the app
 def calculateVarstdmean(confidenceLevel, portfolioManager):
     # Calculate the portfolio returns
     portfolioReturns = portfolioManager.calculatePortfolioReturns()

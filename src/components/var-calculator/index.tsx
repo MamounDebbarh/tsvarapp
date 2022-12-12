@@ -1,18 +1,24 @@
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Grid,
-  Slider,
-  TextField,
-} from "@mui/material";
+import { Button, Grid, Slider, TextField } from "@mui/material";
+
 import { useState } from "react";
+import VarModal from "./var-modal";
+
+interface VarData {
+  historicalVaR: number;
+  historicalCVaR: number;
+  normalDistributionVaR: number;
+  normalDistributionCVaR: number;
+  tDistributionVaR: number;
+  tDistributionCVaR: number;
+  monteCarloVaR: number;
+  monteCarloCVaR: number;
+  brownianMotionMonteCarloVaR: number;
+}
 
 function VarCalculator() {
   const [confidenceLevel, setConfidenceLevel] = useState<number>(90);
   const [timeInDays, setTimeInDays] = useState(1);
+  const [varData, setVarData] = useState<VarData>({} as VarData);
   const [openVarDialog, setOpenVarDialog] = useState(false);
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
@@ -51,12 +57,17 @@ function VarCalculator() {
       }),
     };
     fetch(`/var`, requestOptions).then((response) => {
-      response.json();
-      console.log(response.json());
+      response.json().then((data) => {
+        setVarData(data);
+        handleVarDialogOpen();
+      });
     });
-    handleVarDialogOpen();
-    console.log("Var Calculated");
   };
+
+  // useEffect(() => {
+  //   setVarData(varData);
+  //   console.log(varData);
+  // }, [varData]);
 
   return (
     <Grid container spacing={2}>
@@ -99,12 +110,11 @@ function VarCalculator() {
           Calculate
         </Button>
       </Grid>
-      <Dialog open={openVarDialog} onClose={handleVarDialogClose}>
-        <DialogTitle> Value at Risk</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Value at Risk is</DialogContentText>
-        </DialogContent>
-      </Dialog>
+      <VarModal
+        openVarDialog={openVarDialog}
+        handleVarDialogClose={handleVarDialogClose}
+        varData={varData}
+      />
     </Grid>
   );
 }

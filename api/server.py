@@ -14,10 +14,10 @@ CORS(app, resources = {r"/*": {"origins": "*"}})
 
 # array of stocks
 stocksArray = [
-    # {
-    #     "name": "AMZN",
-    #     "shares": 2,
-    # },
+    {
+        "name": "AMZN",
+        "shares": 2,
+    },
     {
         "name": "MSFT",
         "shares": 3,
@@ -140,11 +140,11 @@ def var():
     portfolio = PortfolioManager(stocksArray, optionsArray)
     portfolioReturnsWithWeights = portfolio.generatePorfolioReturnsWithWeights()
 
-    hvarMath = calculateVarstdmean(confidenceLevel, portfolio) * np.sqrt(timeInDays)
+    # hvarMath = calculateVarstdmean(confidenceLevel, portfolio) * np.sqrt(timeInDays)
     hvar = historicalVaR(portfolioReturnsWithWeights)
-    hvar = hvar.to_json()
+    hvar = hvar * np.sqrt(timeInDays)
     hCVaR  = historicalCVaR(portfolioReturnsWithWeights)
-    hCVaR = hCVaR.to_json()
+    hCVaR = hCVaR * np.sqrt(timeInDays)
     pRet = portfolioReturnsWithWeights * timeInDays
     pRet = pRet.to_json()
     pStd = portfolio.calculatePortfolioStandardDeviation() * np.sqrt(timeInDays)
@@ -155,27 +155,35 @@ def var():
     tCVaR = cvar_parametric(portfolioReturnsWithWeights, pStd, distribution='t-distribution') * np.sqrt(timeInDays)
 
     portfolioSim = mcSim(portfolio=portfolio)
+    print(portfolioSim)
     portResults = pd.Series(portfolioSim[-1,:])
     VaR = mcVaR(portResults, alpha=confidenceLevel) * np.sqrt(timeInDays)
     CVaR = mcCVaR(portResults, alpha=confidenceLevel) * np.sqrt(timeInDays)
 
     varBrownian = useBrownianMotionVar(portfolio, confidenceLevel, timeInDays, 400)
 
-    
+    # select Porfolio element in series
+    hvar = 0 - hvar["Portfolio"]
+    hCVaR = 0 - hCVaR["Portfolio"]
 
-    print("Historical VaR with Maths: \n", hvarMath)
-    print("Value at risk: \n", hvar)
-    print("Conditional value at risk: \n", hCVaR)
-    print("Normal distribution VaR: \n", normVaR)
-    print("Normal distribution CVaR: \n", normCVaR)
-    print("T-distribution VaR: \n", tVaR)
-    print("T-distribution CVaR: \n", tCVaR)
-    print("Monte Carlo VaR: \n", VaR)
-    print("Monte Carlo CVaR: \n", CVaR)
-    print("Brownian motion Monte carlo VaR: \n", varBrownian)
+    # select last row of Portfolio column
+    normVaR = normVaR.iloc[-1]["Portfolio"]
+    normCVaR = normCVaR.iloc[-1]["Portfolio"]
+    tVaR = tVaR.iloc[-1]["Portfolio"]
+    tCVaR = tCVaR.iloc[-1]["Portfolio"]
+    
+    VaR = (1-VaR) / 10
+    CVaR = (1-CVaR) / 10
+
+    # sum of stock prices * shares
+    total = 0
+    for stock in stocksArray:
+        total = total + stock["shares"] * stock["price"]
+    
+    diff = varBrownian - total
+    varBrownian = diff / total
 
     portfolioPerformances = {
-        "historicalVaRMath": hvarMath,
         "historicalVaR": hvar,
         "historicalCVaR": hCVaR,
         "normalDistributionVaR": normVaR,

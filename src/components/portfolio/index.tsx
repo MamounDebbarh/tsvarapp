@@ -138,7 +138,6 @@ function Portfolio() {
     fetch("/stocks").then((response) =>
       response.json().then((data) => {
         setStockList(data.stocks);
-        console.log(data.stocks);
       })
     );
   };
@@ -147,7 +146,6 @@ function Portfolio() {
     fetch("/options").then((response) =>
       response.json().then((data) => {
         setOptionList(data.options);
-        console.log(data.options);
       })
     );
   };
