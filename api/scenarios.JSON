@@ -1,0 +1,246 @@
+{ 
+    "stocksArray0" : [
+        {
+            "name": "AMZN",
+            "shares": 2
+        },
+        {
+            "name": "MSFT",
+            "shares": 3
+        }
+    ],
+    "stocksArray1" : [
+        {
+            "name": "AMZN",
+            "shares": 1
+        },
+        {
+            "name": "MSFT",
+            "shares": 1
+        }
+    ],
+    "stocksArray2" : [
+        {
+            "name": "AMZN",
+            "shares": 2
+        },
+        {
+            "name": "MSFT",
+            "shares": 3
+        },
+        {
+            "name": "TSLA",
+            "shares": 1
+        }
+    ],
+    "stocksArray3" : [
+        {
+            "name": "AMZN",
+            "shares": 2
+        },
+        {
+            "name": "NVDA",
+            "shares": 3
+        }
+    ],
+    "stocksArray4" : [
+        {
+            "name": "AMZN",
+            "shares": 2
+        },
+        {
+            "name": "MSFT",
+            "shares": 3
+        },
+        {
+            "name": "AAPL",
+            "shares": 1
+        },
+        {
+            "name": "GOOG",
+            "shares": 2
+        }
+    ],
+    "stocksArray5" : [
+        {
+            "name": "AAPL",
+            "shares": 4
+        },
+        {
+            "name": "GOOG",
+            "shares": 1
+        }
+    ],
+    "stocksArray6" : [
+        {
+            "name": "AAPL",
+            "shares": 1
+        },
+        {
+            "name": "GOOG",
+            "shares": 1
+        }
+    ],
+    "stocksArray7" : [
+        {
+            "name": "AAPL",
+            "shares": 1
+        },
+        {
+            "name": "GOOG",
+            "shares": 1
+        },
+        {
+            "name": "AMZN",
+            "shares": 5
+        }
+    ],
+    "stocksArray8" : [
+        {
+            "name": "AAPL",
+            "shares": 1
+        },
+        {
+            "name": "GOOG",
+            "shares": 1
+        },
+        {
+            "name": "AMZN",
+            "shares": 5
+        },
+        {
+            "name": "MSFT",
+            "shares": 1
+        }
+    ],
+    "stocksArray9" : [
+        {
+            "name": "AAPL",
+            "shares": 1
+        },
+        {
+            "name": "GOOG",
+            "shares": 1
+        },
+        {
+            "name": "AMZN",
+            "shares": 5
+        },
+        {
+            "name": "MSFT",
+            "shares": 1
+        },
+        {
+            "name": "NVDA",
+            "shares": 1
+        }
+    ],
+    "stocksArray10" : [
+        {
+            "name": "AAPL",
+            "shares": 1
+        },
+        {
+            "name": "GOOG",
+            "shares": 1
+        },
+        {
+            "name": "AMZN",
+            "shares": 5
+        },
+        {
+            "name": "MSFT",
+            "shares": 1
+        },
+        {
+            "name": "NVDA",
+            "shares": 1
+        },
+        {
+            "name": "TSLA",
+            "shares": 1
+        }
+    ],
+    "stocksArray11" : [
+        {
+            "name": "AAPL",
+            "shares": 3
+        },
+        {
+            "name": "GOOG",
+            "shares": 1
+        },
+        {
+            "name": "AMZN",
+            "shares": 2
+        },
+        {
+            "name": "MSFT",
+            "shares": 1
+        },
+        {
+            "name": "NVDA",
+            "shares": 5
+        },
+        {
+            "name": "TSLA",
+            "shares": 1
+        }
+    ],
+    "stocksArray12" : [
+        {
+            "name": "AAPL",
+            "shares": 1
+        },
+        {
+            "name": "GOOG",
+            "shares": 4
+        },
+        {
+            "name": "AMZN",
+            "shares": 1
+        },
+        {
+            "name": "MSFT",
+            "shares": 1
+        },
+        {
+            "name": "NVDA",
+            "shares": 1
+        },
+        {
+            "name": "TSLA",
+            "shares": 3
+        }
+    ],
+    "stocksArray13" : [
+        {
+            "name": "MSFT",
+            "shares": 1
+        },
+        {
+            "name": "NVDA",
+            "shares": 2
+        },
+        {
+            "name": "TSLA",
+            "shares": 1
+        }
+    ],
+    "stocksArray14" : [
+        {
+            "name": "MSFT",
+            "shares": 1
+        },
+        {
+            "name": "NVDA",
+            "shares": 2
+        },
+        {
+            "name": "TSLA",
+            "shares": 4
+        }
+    ]
+}
+
+

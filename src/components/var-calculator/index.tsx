@@ -1,5 +1,6 @@
 import { Button, Grid, Slider, TextField } from "@mui/material";
 
+import LoadingButton from "@mui/lab/LoadingButton";
 import { useState } from "react";
 import VarModal from "./var-modal";
 
@@ -20,6 +21,7 @@ function VarCalculator() {
   const [timeInDays, setTimeInDays] = useState(1);
   const [varData, setVarData] = useState<VarData>({} as VarData);
   const [openVarDialog, setOpenVarDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
     setConfidenceLevel(newValue as number);
@@ -48,6 +50,7 @@ function VarCalculator() {
   const handleVarCalculation = () => {
     // post request to backend /var endpoint with confidenceLevel
     // then fetch var from backend and setVar
+    setLoading(true);
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -59,6 +62,7 @@ function VarCalculator() {
     fetch(`/var`, requestOptions).then((response) => {
       response.json().then((data) => {
         setVarData(data);
+        setLoading(false);
         handleVarDialogOpen();
       });
     });
@@ -105,10 +109,17 @@ function VarCalculator() {
           }}
         />
       </Grid>
+
       <Grid item xs={3}>
-        <Button variant="contained" onClick={handleVarCalculation}>
-          Calculate
-        </Button>
+        {loading ? (
+          <LoadingButton loading variant="outlined">
+            Loading ...
+          </LoadingButton>
+        ) : (
+          <Button variant="contained" onClick={handleVarCalculation}>
+            Calculate
+          </Button>
+        )}
       </Grid>
       <VarModal
         openVarDialog={openVarDialog}

@@ -4,6 +4,7 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import json
+import matplotlib.pyplot as plt
 
 from services.portfolioManager import PortfolioManager
 from services.models import historicalVaR, historicalCVaR, var_parametric, cvar_parametric, mcSim, mcVaR, mcCVaR, calculateVarstdmean, useBrownianMotionVar
@@ -109,7 +110,9 @@ def add_option():
     
     name = request.json["name"]
     shares = request.json["shares"]
-    optionsArray.append({"name": name, "shares": shares})
+    r = request.json["r"]
+    type = request.json["type"]
+    optionsArray.append({"name": name, "shares": shares, "r": r, "type": type})
     return {"message": "Option added successfully"}
 
 # delete a stock from the array
@@ -183,6 +186,8 @@ def var():
     diff = varBrownian - total
     varBrownian = diff / total
 
+
+
     portfolioPerformances = {
         "historicalVaR": hvar,
         "historicalCVaR": hCVaR,
@@ -194,6 +199,23 @@ def var():
         "monteCarloCVaR": CVaR,
         "brownianMotionMonteCarloVaR": varBrownian
     }
+
+    # plot portFolioPerformances as a bar chart
+    plt.bar(portfolioPerformances.keys(), portfolioPerformances.values())
+
+    # compute the percentage difference between hvar, normVaR, tVaR, and VaR
+    percentageDiff = { 
+        "historical-normal": (hvar - normVaR) / hvar,
+        "historical-t": (hvar - tVaR) / hvar,
+        "historical-monteCarlo": (hvar - VaR) / hvar,
+        "normal-t": (normVaR - tVaR) / normVaR,
+        "normal-monteCarlo": (normVaR - VaR) / normVaR,
+        "t-monteCarlo": (tVaR - VaR) / tVaR,
+        "monteCarlo-historical": (VaR - hvar) / VaR,
+        "monteCarlo-normal": (VaR - normVaR) / VaR,
+    }
+    # plot percentageDiff as a point chart
+    plt.plot(percentageDiff.keys(), percentageDiff.values(), 'ro')
 
     return portfolioPerformances
 

@@ -14,6 +14,8 @@ import {
   Grid,
   List,
   ListItem,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from "@mui/material";
@@ -59,6 +61,9 @@ function Portfolio() {
   const [newStockNumber, setNewStockNumber] = useState(0);
   const [newOptionName, setNewOptionName] = useState("");
   const [newOptionNumber, setNewOptionNumber] = useState(0);
+  const [newOptionR, setNewOptionR] = useState(0);
+  const [newOptionType, setNewOptionType] = useState("call");
+  const [update, setUpdate] = useState(false);
 
   const handleAddStockDialog = () => {
     setOpenStockDialog(true);
@@ -84,10 +89,17 @@ function Portfolio() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: newStockName, shares: newStockNumber }),
     };
-    fetch("/stocks", requestOptions).then((response) => response.json());
+    fetch("/stocks", requestOptions)
+      .then((response) => response.json())
+      .then(() => {
+        fetchStockList();
+      });
     setOpenStockDialog(false);
-    fetchStockList();
     console.log("Stock Submitted");
+  };
+
+  const handleUpdate = () => {
+    setUpdate(!update);
   };
 
   const handleOptionSubmit = () => {
@@ -96,15 +108,23 @@ function Portfolio() {
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newOptionName, shares: newOptionNumber }),
+      body: JSON.stringify({
+        name: newOptionName,
+        shares: newOptionNumber,
+        r: newOptionR,
+        type: newOptionType,
+      }),
     };
-    fetch("/options", requestOptions).then((response) => response.json());
+    fetch("/options", requestOptions)
+      .then((response) => response.json())
+      .then(() => {
+        fetchOptionList();
+      });
     setOpenOptionDialog(false);
-    fetchOptionList();
     console.log("Option Submitted");
   };
 
-  const handleStockDelete = (name: string) => {
+  const handleStockDelete = async (name: string) => {
     // delete from backend /stocks endpoint with name
     // then fetch stocks from backend and setStockList
     const requestOptions = {
@@ -112,10 +132,11 @@ function Portfolio() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: name }),
     };
-    fetch(`/stocks/${name}`, requestOptions).then((response) =>
-      response.json()
-    );
-    fetchStockList();
+    fetch(`/stocks/${name}`, requestOptions)
+      .then((response) => response.json())
+      .then(() => {
+        fetchStockList();
+      });
     console.log("Stock Deleted");
   };
 
@@ -127,10 +148,11 @@ function Portfolio() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: name }),
     };
-    fetch(`/options/${name}`, requestOptions).then((response) =>
-      response.json()
-    );
-    fetchOptionList();
+    fetch(`/options/${name}`, requestOptions)
+      .then((response) => response.json())
+      .then(() => {
+        fetchOptionList();
+      });
     console.log("Option Deleted");
   };
 
@@ -227,17 +249,28 @@ function Portfolio() {
               <ListItem key={i}>
                 <Accordion style={{ width: "100%" }}>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={6} sm={6}>
+                    <Grid
+                      container
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      <Grid item>
                         <Typography>
                           {stock.name} $
                           {Math.round(stock.shares * stock.price * 100) / 100}
                         </Typography>
                       </Grid>
-                      <Grid item xs={2} sm={2}>
+                      <Grid item>
                         <Button
                           variant="contained"
-                          style={{ right: 5 }}
+                          style={{
+                            backgroundColor: "#ff0000",
+                            color: "#ffffff",
+                            scale: "0.7",
+                            borderRadius: "100%",
+                            padding: "0px",
+                          }}
                           onClick={() => handleStockDelete(stock.name)}
                         >
                           -
@@ -290,12 +323,30 @@ function Portfolio() {
             <TextField
               autoFocus
               margin="dense"
-              id="name"
+              id="shares"
               label="Number of Contracts"
               type="number"
               fullWidth
               onChange={(e) => setNewOptionNumber(Number(e.target.value))}
             />
+            <TextField
+              autoFocus
+              margin="dense"
+              id="r"
+              label="interest rate"
+              type="number"
+              fullWidth
+              onChange={(e) => setNewOptionR(Number(e.target.value))}
+            />
+
+            <Select
+              value={newOptionType}
+              label="Type"
+              onChange={(e) => setNewOptionType(e.target.value)}
+            >
+              <MenuItem value={"call"}>Call</MenuItem>
+              <MenuItem value={"put"}>Put</MenuItem>
+            </Select>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseOptionDialog}>Cancel</Button>
@@ -311,17 +362,28 @@ function Portfolio() {
               <ListItem key={i}>
                 <Accordion style={{ width: "100%" }}>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={6} sm={6}>
+                    <Grid
+                      container
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      <Grid item>
                         <Typography>
                           {option.name} $
                           {Math.round(option.shares * option.price * 100) / 100}
                         </Typography>
                       </Grid>
-                      <Grid item xs={2} sm={2}>
+                      <Grid item>
                         <Button
                           variant="contained"
-                          style={{ right: 5 }}
+                          style={{
+                            backgroundColor: "#ff0000",
+                            color: "#ffffff",
+                            scale: "0.7",
+                            borderRadius: "100%",
+                            padding: "0px",
+                          }}
                           onClick={() => handleOptionDelete(option.name)}
                         >
                           -

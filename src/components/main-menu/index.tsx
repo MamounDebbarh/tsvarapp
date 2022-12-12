@@ -53,8 +53,6 @@ export default function MainMenu() {
               aria-label="basic tabs example"
             >
               <Tab label="Value at Risk calculator" {...a11yProps(0)} />
-              <Tab label="Monte Carlo simulation" {...a11yProps(1)} />
-              <Tab label="Linear model" {...a11yProps(2)} />
             </Tabs>
           </Box>
           <TabPanel value={value} index={0}>
